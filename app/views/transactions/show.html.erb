@@ -1,0 +1,32 @@
+<h1>Transaction Details</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Payer ID</th>
+      <th>Provider ID</th>
+      <th>Payment Reference</th>
+      <th>Date Settlement</th>
+      <th>Net Amount</th>
+      <th>Gross Amount</th>
+      <th>Patient Share</th>
+      <th>Payment Amount</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @claims.each do |claim| %>
+      <tr>
+        <td><%= claim.xpath('ID').text %></td>
+        <td><%= claim.xpath('IDPayer').text %></td>
+        <td><%= claim.xpath('ProviderID').text %></td>
+        <td><%= claim.xpath('PaymentReference').text %></td>
+        <td><%= claim.xpath('DateSettlement').text %></td>
+        <td><%= claim.xpath('Activity/Net').text %></td>
+        <td><%= claim.xpath('Activity/Gross').text %></td>
+        <td><%= claim.xpath('Activity/PatientShare').text %></td>
+        <td><%= claim.xpath('Activity/PaymentAmount').text %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
