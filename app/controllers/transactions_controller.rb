@@ -3,6 +3,13 @@ class TransactionsController < ApplicationController
   require 'base64'
 
   def index
+    @transactions = Transaction.all
+    respond_to do |format|
+      format.html
+      format.xlsx do
+        render xlsx: "report", template: "transactions/report"
+      end
+    end
   end
 
   def show
@@ -39,11 +46,8 @@ class TransactionsController < ApplicationController
   def fetch_transaction_files(login, password)
     # SOAP client setup
     client = Savon.client(wsdl: "http://dhpo.eclaimlink.ae/ValidateTransactions.asmx?WSDL")
-
     begin
       response = client.call(:get_new_transactions, message: { login: login, pwd: password })
-
-      # Extract transaction files
       transaction_files_xml = response.body.dig(:get_new_transactions_response, :xml_transaction)
       
       return transaction_files_xml
@@ -59,28 +63,20 @@ class TransactionsController < ApplicationController
       return nil 
     end
 
-    Rails.logger.info "Fetching details for File ID: #{file_id}"
-
     client = Savon.client(wsdl: "http://dhpo.eclaimlink.ae/ValidateTransactions.asmx?WSDL")
-
     begin
       # Make SOAP call to fetch the file details
       response = client.call(:download_transaction_file, message: { login: login, pwd: password, fileId: file_id })
-      puts response.inspect
-      # Extract and log raw data from the response body
-      # encoded_data = response.body.dig(:download_transaction_file_response, :download_transaction_file_result)
-      # Rails.logger.info "Raw Data for File ID #{file_id}: #{encoded_data.inspect}"
+      # puts response.inspect
       file_content_base64 = response.body.dig(:download_transaction_file_response, :file)
 
       decoded_data = Base64.decode64(file_content_base64) 
       if decoded_data.present?
-      Rails.logger.info "Decoded Data for File ID #{file_id}: #{decoded_data}"
+      # Rails.logger.info "Decoded Data for File ID #{file_id}: #{decoded_data}"
       Transaction.create!(file_id: file_id, xml_content: decoded_data)
       else
       Rails.logger.warn "No file content found for File ID #{file_id}"
       end  
-      # Save the decoded data or process it further as needed (e.g., save to database)
-      # decoded_data
     rescue Savon::Error => e
       Rails.logger.error "SOAP Error: #{e.message}"
       nil

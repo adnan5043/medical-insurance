@@ -1,0 +1,50 @@
+wb = xlsx_package.workbook
+
+# Define styles
+header_style = wb.styles.add_style(
+  b: true, 
+  alignment: { horizontal: :center, vertical: :center },
+  bg_color: 'D3D3D3' # Light Gray background
+)
+
+# Add worksheet
+wb.add_worksheet(name: "Transactions") do |sheet|
+  # Add header row with bold style
+  sheet.add_row [
+    "Sender ID", "Receiver ID", "Receiver", "Claim ID", "Transaction Date",
+    "Activity Clinician", "Activity ID", "Activity Code",
+    "Activity Start Date", "Activity Quantity", "Activity Net",
+    "Activity Payment Amount", "Claim Date Settlement",
+    "Claim Payment Reference",  "RA Comments"
+  ], style: header_style
+
+  # Add rows for each transaction
+  @transactions.each do |transaction|
+    xml_doc = Nokogiri::XML(transaction.xml_content)
+    claims = xml_doc.xpath('//Claim')
+
+    claims.each do |claim|
+      activities = claim.xpath('Activity')
+
+      activities.each do |activity|
+        sheet.add_row [
+          xml_doc.xpath('//Header/SenderID').text,
+          xml_doc.xpath('//Header/ReceiverID').text,
+          claim.xpath('ProviderID').text,
+          claim.xpath('ID').text,
+          xml_doc.xpath('//Header/TransactionDate').text,
+          activity.xpath('Clinician').text,
+          activity.xpath('ID').text,
+          activity.xpath('Code').text,
+          activity.xpath('Start').text,
+          activity.xpath('Quantity').text,
+          activity.xpath('Net').text,
+          activity.xpath('PaymentAmount').text,
+          claim.xpath('DateSettlement').text,
+          claim.xpath('PaymentReference').text,
+          claim.xpath('Comments').text
+        ]
+      end
+    end
+  end
+end

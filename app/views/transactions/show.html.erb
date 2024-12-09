@@ -3,29 +3,51 @@
 <table>
   <thead>
     <tr>
-      <th>ID</th>
-      <th>Payer ID</th>
-      <th>Provider ID</th>
-      <th>Payment Reference</th>
-      <th>Date Settlement</th>
-      <th>Net Amount</th>
-      <th>Gross Amount</th>
-      <th>Patient Share</th>
-      <th>Payment Amount</th>
+      <th>Sender ID</th>
+      <th>Receiver ID</th>
+      <th>Receiver</th>
+      <th>Claim ID</th>
+      <th>Transaction Date</th>
+      <th>Activity Clinician</th>
+      <th>Activity ID</th>
+      <th>Activity Code</th>
+      <th>Activity Start Date</th>
+      <th>Activity Quantity</th>
+      <th>Activity Net</th>
+      <th>Activity Payment Amount</th>
+      <th>Claim Date Settlement</th>
+      <th>Claim Payment Reference</th>
+      <th>RA Comments</th>
     </tr>
   </thead>
   <tbody>
-    <% @claims.each do |claim| %>
+    <% if @claims.present? %>
+      <% @claims.each do |claim| %>
+        <% if claim.present? && claim.xpath('Activity').present? %>
+          <% claim.xpath('Activity').each do |activity| %>
+            <tr>
+              <td><%= @xml_doc.xpath('//Header/SenderID').text %></td>
+              <td><%= @xml_doc.xpath('//Header/ReceiverID').text %></td>
+              <td><%= claim.xpath('ProviderID').text %></td>
+              <td><%= claim.xpath('ID').text %></td>
+              <td><%= @xml_doc.xpath('//Header/TransactionDate').text %></td>
+              <td><%= activity.xpath('Clinician').text %></td>
+              <td><%= activity.xpath('ID').text %></td>
+              <td><%= activity.xpath('Code').text %></td>
+              <td><%= activity.xpath('Start').text %></td>
+              <td><%= activity.xpath('Quantity').text %></td>
+              <td><%= activity.xpath('Net').text %></td>
+              <td><%= activity.xpath('PaymentAmount').text %></td>
+              <td><%= claim.xpath('DateSettlement').text %></td>
+              <td><%= claim.xpath('PaymentReference').text %></td>
+              <td><%= claim.xpath('Comments').text %></td>
+            </tr>
+          <% end %>
+        <% end %>
+      <% end %>
+    <% else %>
       <tr>
-        <td><%= claim.xpath('ID').text %></td>
-        <td><%= claim.xpath('IDPayer').text %></td>
-        <td><%= claim.xpath('ProviderID').text %></td>
-        <td><%= claim.xpath('PaymentReference').text %></td>
-        <td><%= claim.xpath('DateSettlement').text %></td>
-        <td><%= claim.xpath('Activity/Net').text %></td>
-        <td><%= claim.xpath('Activity/Gross').text %></td>
-        <td><%= claim.xpath('Activity/PatientShare').text %></td>
-        <td><%= claim.xpath('Activity/PaymentAmount').text %></td>
+        <td colspan="17">No transaction details available.</td>
       </tr>
     <% end %>
   </tbody>
