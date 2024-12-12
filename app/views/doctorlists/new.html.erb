@@ -1,0 +1,19 @@
+<h1>Create New Doctor</h1>
+
+<%= form_with model: @doctorlist, local: true do |form| %>
+  <div>
+    <%= form.label :doctor_name %>
+    <%= form.text_field :doctor_name, required: true %>
+  </div>
+
+  <div>
+    <%= form.label :License_Number %>
+    <%= form.text_field :activity_clinician, required: true %>
+  </div>
+
+  <div>
+    <%= form.submit 'Create Doctor', class: 'btn btn-success' %>
+  </div>
+<% end %>
+
+<%= link_to 'Back to Doctor List', doctorlists_path, class: 'btn btn-secondary' %>

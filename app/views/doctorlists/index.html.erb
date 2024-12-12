@@ -1,0 +1,27 @@
+<h1>Doctor's List</h1>
+<%= link_to 'Create New Doctor', new_doctorlist_path, class: 'btn btn-primary' %> |
+<%= link_to 'Back to home', root_path, class: 'btn btn-secondary' %>
+<table>
+  <thead>
+    <tr>
+      <th>#</th> 
+      <th>Doctor's Name</th>
+      <th>License Number</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @doctorlists.each_with_index do |doctorlist, index| %>
+      <tr>
+        <td><%= index + 1 %></td> 
+        <td><%= doctorlist.doctor_name %></td>
+        <td><%= doctorlist.activity_clinician %></td>
+        <td>
+          <%#= link_to 'Show', doctorlist %> 
+          <%#= link_to 'Edit', edit_doctorlist_path(doctorlist) %> 
+          <%= button_to 'Delete', doctorlist, method: :delete, data: { confirm: 'Are you sure?' } %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
