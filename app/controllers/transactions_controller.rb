@@ -3,7 +3,7 @@ class TransactionsController < ApplicationController
   require 'base64'
 
   def index
-    @transactions = Transaction.all
+    @transactions = TransactionData.all
     respond_to do |format|
       format.html
       format.xlsx do
@@ -72,10 +72,13 @@ class TransactionsController < ApplicationController
 
       decoded_data = Base64.decode64(file_content_base64) 
       if decoded_data.present?
-      # Rails.logger.info "Decoded Data for File ID #{file_id}: #{decoded_data}"
-      Transaction.create!(file_id: file_id, xml_content: decoded_data)
+        # Create the Transaction record
+        transaction = Transaction.create!(file_id: file_id, xml_content: decoded_data)
+        
+        # Save the related TransactionData
+        transaction.save_transaction_data
       else
-      Rails.logger.warn "No file content found for File ID #{file_id}"
+        Rails.logger.warn "No file content found for File ID #{file_id}"
       end  
     rescue Savon::Error => e
       Rails.logger.error "SOAP Error: #{e.message}"

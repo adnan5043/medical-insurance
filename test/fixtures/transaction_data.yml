@@ -1,0 +1,47 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  sender_id: MyString
+  receiver_id: MyString
+  transaction_date: 2024-12-10 13:05:51
+  record_count: 1
+  disposition_flag: MyString
+  claim_id: MyString
+  id_payer: MyString
+  provider_id: MyString
+  payment_reference: MyString
+  date_settlement: 2024-12-10 13:05:51
+  activity_id: MyString
+  activity_start: 2024-12-10 13:05:51
+  activity_type: 1
+  activity_code: MyString
+  activity_quantity: 1
+  activity_net: 9.99
+  activity_list: 9.99
+  activity_clinician: MyString
+  activity_gross: 9.99
+  activity_patient_share: 9.99
+  activity_payment_amount: 9.99
+
+two:
+  sender_id: MyString
+  receiver_id: MyString
+  transaction_date: 2024-12-10 13:05:51
+  record_count: 1
+  disposition_flag: MyString
+  claim_id: MyString
+  id_payer: MyString
+  provider_id: MyString
+  payment_reference: MyString
+  date_settlement: 2024-12-10 13:05:51
+  activity_id: MyString
+  activity_start: 2024-12-10 13:05:51
+  activity_type: 1
+  activity_code: MyString
+  activity_quantity: 1
+  activity_net: 9.99
+  activity_list: 9.99
+  activity_clinician: MyString
+  activity_gross: 9.99
+  activity_patient_share: 9.99
+  activity_payment_amount: 9.99

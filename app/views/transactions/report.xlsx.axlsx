@@ -12,39 +12,36 @@ wb.add_worksheet(name: "Transactions") do |sheet|
   # Add header row with bold style
   sheet.add_row [
     "Sender ID", "Receiver ID", "Receiver", "Claim ID", "Transaction Date",
-    "Activity Clinician", "Activity ID", "Activity Code",
+    "Activity Clinician", "Doctor Name", "Activity ID", "Activity Code",
     "Activity Start Date", "Activity Quantity", "Activity Net",
     "Activity Payment Amount", "Claim Date Settlement",
-    "Claim Payment Reference",  "RA Comments"
+    "Claim Payment Reference", "RA Comments"
   ], style: header_style
 
   # Add rows for each transaction
   @transactions.each do |transaction|
-    xml_doc = Nokogiri::XML(transaction.xml_content)
-    claims = xml_doc.xpath('//Claim')
+    # Find the associated doctor using the activity_clinician
+    doctor = Doctorlist.find_by(activity_clinician: transaction.activity_clinician)
+    doctor_name = doctor ? doctor.doctor_name : ""
 
-    claims.each do |claim|
-      activities = claim.xpath('Activity')
-
-      activities.each do |activity|
-        sheet.add_row [
-          xml_doc.xpath('//Header/SenderID').text,
-          xml_doc.xpath('//Header/ReceiverID').text,
-          claim.xpath('ProviderID').text,
-          claim.xpath('ID').text,
-          xml_doc.xpath('//Header/TransactionDate').text,
-          activity.xpath('Clinician').text,
-          activity.xpath('ID').text,
-          activity.xpath('Code').text,
-          activity.xpath('Start').text,
-          activity.xpath('Quantity').text,
-          activity.xpath('Net').text,
-          activity.xpath('PaymentAmount').text,
-          claim.xpath('DateSettlement').text,
-          claim.xpath('PaymentReference').text,
-          claim.xpath('Comments').text
-        ]
-      end
-    end
+    # Add row for each transaction
+    sheet.add_row [
+      transaction.sender_id, 
+      transaction.receiver_id,            
+      transaction.provider_id,             
+      transaction.claim_id,            
+      transaction.transaction_date.strftime('%Y-%m-%d %H:%M:%S'), 
+      transaction.activity_clinician,       
+      doctor_name,                           
+      transaction.activity_id,              
+      transaction.activity_code,             
+      transaction.activity_start.strftime('%Y-%m-%d %H:%M:%S'),  
+      transaction.activity_quantity,        
+      transaction.activity_net,             
+      transaction.activity_payment_amount,  
+      transaction.date_settlement.strftime('%Y-%m-%d %H:%M:%S'), 
+      transaction.payment_reference,  
+      transaction.comments    
+    ]
   end
 end
