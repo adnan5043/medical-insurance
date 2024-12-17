@@ -7,6 +7,16 @@ header_style = wb.styles.add_style(
   bg_color: 'D3D3D3' # Light Gray background
 )
 
+# Preload Doctorlist records to avoid N+1 queries
+doctorlist_mapping = Doctorlist.where(activity_clinician: @transactions.pluck(:activity_clinician).uniq)
+                               .index_by(&:activity_clinician)
+
+# Sort transactions by transaction_date in ascending order
+sorted_transactions = @transactions.sort_by { |t| t.transaction_date }
+
+# Group transactions by year, month, and day after sorting
+grouped_transactions = sorted_transactions.group_by { |t| t.transaction_date.to_date }
+
 # Add worksheet
 wb.add_worksheet(name: "Transactions") do |sheet|
   # Add header row with bold style
@@ -18,30 +28,31 @@ wb.add_worksheet(name: "Transactions") do |sheet|
     "Claim Payment Reference", "RA Comments"
   ], style: header_style
 
-  # Add rows for each transaction
-  @transactions.each do |transaction|
-    # Find the associated doctor using the activity_clinician
-    doctor = Doctorlist.find_by(activity_clinician: transaction.activity_clinician)
-    doctor_name = doctor ? doctor.doctor_name : ""
+  # Add rows for all transactions without empty lines
+  grouped_transactions.each do |_, transactions| # No need to use `date`
+    transactions.each do |transaction|
+      # Use preloaded doctorlist mapping
+      doctor_name = doctorlist_mapping[transaction.activity_clinician]&.doctor_name || ""
 
-    # Add row for each transaction
-    sheet.add_row [
-      transaction.sender_id, 
-      transaction.receiver_id,            
-      transaction.provider_id,             
-      transaction.claim_id,            
-      transaction.transaction_date.strftime('%Y-%m-%d %H:%M:%S'), 
-      transaction.activity_clinician,       
-      doctor_name,                           
-      transaction.activity_id,              
-      transaction.activity_code,             
-      transaction.activity_start.strftime('%Y-%m-%d %H:%M:%S'),  
-      transaction.activity_quantity,        
-      transaction.activity_net,             
-      transaction.activity_payment_amount,  
-      transaction.date_settlement.strftime('%Y-%m-%d %H:%M:%S'), 
-      transaction.payment_reference,  
-      transaction.comments    
-    ]
+      # Add transaction row
+      sheet.add_row [
+        transaction.sender_id, 
+        transaction.receiver_id,            
+        transaction.provider_id,             
+        transaction.claim_id,            
+        transaction.transaction_date.strftime('%Y-%m-%d %H:%M:%S'), 
+        transaction.activity_clinician,       
+        doctor_name,                           
+        transaction.activity_id,              
+        transaction.activity_code,             
+        transaction.activity_start.strftime('%Y-%m-%d %H:%M:%S'),  
+        transaction.activity_quantity,        
+        transaction.activity_net,             
+        transaction.activity_payment_amount,  
+        transaction.date_settlement.present? ? transaction.date_settlement.strftime('%Y-%m-%d %H:%M:%S') : nil,
+        transaction.payment_reference,  
+        transaction.comments    
+      ]
+    end
   end
 end
