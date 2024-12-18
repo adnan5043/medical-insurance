@@ -19,48 +19,77 @@ class TransactionsController < ApplicationController
   end
 
   def fetch_transactions
-    login = ENV['SOAP_USERNAME']
-    password = ENV['SOAP_PASSWORD']
-    # Get the parameters from the form
-    direction = params[:direction].to_i
-    transaction_id = params[:transaction_id].to_i
-    transaction_status = params[:transaction_status].to_i
-    min_record_count = params[:min_record_count].to_i
-    max_record_count = params[:max_record_count].to_i
-    transaction_from_date = params[:transaction_from_date]
-    transaction_to_date = params[:transaction_to_date]
-    # Validate the parameters based on the requirements
-    if min_record_count == 0
-      min_record_count = -1
-    end
-
-    if max_record_count == 0
-      max_record_count = -1
-    end
-
-    if max_record_count < min_record_count
-      max_record_count = -1
-    end
-
-    # Fetch transaction files using HTTP request
-    transaction_files_xml = fetch_transaction_files_using_http(
-      login, password, direction, transaction_id, transaction_status,
-      min_record_count, max_record_count, transaction_from_date, transaction_to_date
+    # Check if a record with the same values already exists
+    existing_transaction = SearchTransaction.find_by(
+      transaction_id: params[:transaction_id],
+      direction: params[:direction],
+      transaction_status: params[:transaction_status],
+      min_record_count: params[:min_record_count],
+      max_record_count: params[:max_record_count],
+      transaction_from_date: params[:transaction_from_date].presence,
+      transaction_to_date: params[:transaction_to_date].presence
     )
 
-    if transaction_files_xml.present?
-      file_ids = transaction_files_xml.scan(/FileID= '([a-f0-9\-]+)'/).flatten
-      # puts file_ids.inspect
-      if file_ids.any?
-        Rails.logger.info "Processing FileIDs: #{file_ids.inspect}"
-        file_ids.each do |file_id|
-          fetch_file_details_from_soap(file_id, login, password)
+    if existing_transaction
+      # If a matching record exists, skip API hit and render a message
+      render turbo_stream: turbo_stream.append(:notifications, "No new request. Same parameters already exist in the database.")
+      return
+    end
+
+    # Save the new record
+    search_transaction = SearchTransaction.new(
+      transaction_id: params[:transaction_id],
+      direction: params[:direction],
+      transaction_status: params[:transaction_status],
+      min_record_count: params[:min_record_count],
+      max_record_count: params[:max_record_count],
+      transaction_from_date: params[:transaction_from_date].presence,
+      transaction_to_date: params[:transaction_to_date].presence
+    )
+
+    if search_transaction.save
+      # Proceed with the existing logic after saving parameters
+      login = ENV['SOAP_USERNAME']
+      password = ENV['SOAP_PASSWORD']
+
+      # Convert and validate parameters
+      direction = params[:direction].to_i
+      transaction_id = params[:transaction_id].to_i
+      transaction_status = params[:transaction_status].to_i
+      min_record_count = params[:min_record_count].to_i
+      max_record_count = params[:max_record_count].to_i
+      transaction_from_date = params[:transaction_from_date]
+      transaction_to_date = params[:transaction_to_date]
+
+      # Adjust min and max record counts as per requirements
+      min_record_count = -1 if min_record_count.zero?
+      max_record_count = -1 if max_record_count.zero? || max_record_count < min_record_count
+
+      # Fetch transaction files using HTTP request
+      transaction_files_xml = fetch_transaction_files_using_http(
+        login, password, direction, transaction_id, transaction_status,
+        min_record_count, max_record_count, transaction_from_date, transaction_to_date
+      )
+
+      if transaction_files_xml.present?
+        file_ids = transaction_files_xml.scan(/FileID= '([a-f0-9\-]+)'/).flatten
+        if file_ids.any?
+          Rails.logger.info "Processing FileIDs: #{file_ids.inspect}"
+          file_ids.each do |file_id|
+            fetch_file_details_from_soap(file_id, login, password)
+          end
+        else
+          Rails.logger.warn "No FileIDs found in the fetched transactions"
         end
       else
-        Rails.logger.warn "No FileIDs found in the fetched transactions"
+        Rails.logger.warn "No transaction files were retrieved from the SOAP service"
       end
+
+      # Render a success response
+      render turbo_stream: turbo_stream.append(:notifications, "Request parameters saved and transaction files processed successfully!")
     else
-      Rails.logger.warn "No transaction files were retrieved from the SOAP service"
+      # Render a failure response if saving fails
+      render turbo_stream: turbo_stream.append(:notifications, "Failed to save request parameters.")
     end
   end
 
