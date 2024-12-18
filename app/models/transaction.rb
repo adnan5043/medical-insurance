@@ -38,6 +38,7 @@ class Transaction < ApplicationRecord
         activity_net = activity.at_xpath('Net')&.text.to_f
         activity_payment_amount = activity.at_xpath('PaymentAmount')&.text.to_f
         activity_clinician = activity.at_xpath('Clinician')&.text
+        denial_code = activity.at_xpath('DenialCode')&.text # Extract DenialCode
 
         # Save activity-level data for each activity
         TransactionData.create!(
@@ -62,7 +63,8 @@ class Transaction < ApplicationRecord
           activity_quantity: activity_quantity,
           activity_net: activity_net,
           activity_payment_amount: activity_payment_amount,
-          activity_clinician: activity_clinician
+          activity_clinician: activity_clinician,
+          denial_code: denial_code # Save DenialCode
         )
       end
     end
