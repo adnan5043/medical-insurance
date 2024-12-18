@@ -4,4 +4,10 @@ class TransactionData < ApplicationRecord
              foreign_key: 'activity_clinician', 
              primary_key: 'activity_clinician', 
              optional: true
+  belongs_to :denialcodelist, 
+              foreign_key: 'denial_code', 
+              primary_key: 'denial_code',  
+             optional: true
+             
+
 end

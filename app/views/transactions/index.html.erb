@@ -41,6 +41,8 @@
 
 <%= button_to 'Download Excel', transactions_path(format: :xlsx), method: :get, class: 'btn btn-primary' %>
 <%= link_to 'View Doctor List', doctorlists_path, class: 'btn btn-primary mt-3' %>
+<br>
+<%= link_to 'View Denial Codes', denialcodelists_path, class: 'btn btn-primary' %>
 
 <!-- Popup for date validation -->
 <div id="date-warning-popup" style="display:none; background-color: yellow; padding: 20px; margin-top: 10px;">

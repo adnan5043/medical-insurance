@@ -7,9 +7,12 @@ header_style = wb.styles.add_style(
   bg_color: 'D3D3D3' # Light Gray background
 )
 
-# Preload Doctorlist records to avoid N+1 queries
+# Preload Doctorlist and Denialcodelist records to avoid N+1 queries
 doctorlist_mapping = Doctorlist.where(activity_clinician: @transactions.pluck(:activity_clinician).uniq)
                                .index_by(&:activity_clinician)
+
+denialcode_mapping = Denialcodelist.where(denial_code: @transactions.pluck(:denial_code).uniq)
+                                   .index_by(&:denial_code)
 
 # Sort transactions by transaction_date in ascending order
 sorted_transactions = @transactions.sort_by { |t| t.transaction_date }
@@ -25,7 +28,7 @@ wb.add_worksheet(name: "Transactions") do |sheet|
     "Activity Clinician", "Doctor Name", "Activity ID", "Activity Code",
     "Activity Start Date", "Activity Quantity", "Activity Net",
     "Activity Payment Amount", "Claim Date Settlement",
-    "Claim Payment Reference", "Denial Code","RA Comments"
+    "Claim Payment Reference", "Denial Code", "Denial code Description", "RA Comments"
   ], style: header_style
 
   # Add rows for all transactions without empty lines
@@ -33,6 +36,9 @@ wb.add_worksheet(name: "Transactions") do |sheet|
     transactions.each do |transaction|
       # Use preloaded doctorlist mapping
       doctor_name = doctorlist_mapping[transaction.activity_clinician]&.doctor_name || ""
+
+      # Lookup denial description from the Denialcodelist mapping
+      denial_description = denialcode_mapping[transaction.denial_code]&.description || ""
 
       # Add transaction row
       sheet.add_row [
@@ -52,6 +58,7 @@ wb.add_worksheet(name: "Transactions") do |sheet|
         transaction.date_settlement.present? ? transaction.date_settlement.strftime('%Y-%m-%d %H:%M:%S') : nil,
         transaction.payment_reference,
         transaction.denial_code, 
+        denial_description,
         transaction.comments    
       ]
     end
