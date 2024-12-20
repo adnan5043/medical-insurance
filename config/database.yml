@@ -83,6 +83,6 @@ test:
 production:
   <<: *default
   database: medical_insurance_production
-  username: medical_insuranc
+  username: medical_insurance
+  password: 'med123@#'
   pool: 5
-  password:  <%= Rails.application.credentials.dig(:DATABASE_PASSWORD) %>
