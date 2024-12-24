@@ -49,9 +49,8 @@ class TransactionsController < ApplicationController
 
     if search_transaction.save
       # Proceed with the existing logic after saving parameters
-      login = ENV['SOAP_USERNAME']
-      password = ENV['SOAP_PASSWORD']
-
+      login = Rails.application.credentials.soap[:username]
+      password = Rails.application.credentials.soap[:password]
       # Convert and validate parameters
       direction = params[:direction].to_i
       transaction_id = params[:transaction_id].to_i

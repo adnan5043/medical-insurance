@@ -28,6 +28,7 @@ gem "jbuilder"
 gem 'savon', '~> 2.0'
 gem 'nokogiri'
 gem 'devise'
+gem 'recaptcha', require: 'recaptcha/rails'
 
 # Use Redis adapter to run Action Cable in production
 # gem "redis", ">= 4.0.1"
