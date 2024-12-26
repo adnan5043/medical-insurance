@@ -2,6 +2,16 @@
 
 <%= form_with url: fetch_transactions_transactions_path, method: :post, class: 'mt-3', id: 'transaction_form' do |form| %>
   <div class="form-group">
+    <%= form.label :login, "Login" %>
+    <%= form.text_field :login, value: '', class: 'form-control', placeholder: 'Enter login' %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :password, "Password" %>
+    <%= form.password_field :password, value: '', class: 'form-control', placeholder: 'Enter password' %>
+  </div>
+
+  <div class="form-group">
     <%= form.label :transaction_id, "Transaction ID" %>
     <%= form.select :transaction_id, options_for_select([['Claim Submission', 2], ['Remittance Advice', 8], ['Prior Request', 16], ['Prior Authorization', 32]]), { selected: 8 }, class: 'form-control' %>
   </div>
@@ -39,7 +49,7 @@
   <%= form.submit 'Send Request', class: 'btn btn-primary mt-3', id: 'submit_button' %>
 <% end %>
 
-<%= button_to 'Download Excel', transactions_path(format: :xlsx), method: :get, class: 'btn btn-primary' %>
+<%= button_to 'Download Report', transactions_path(format: :xlsx), method: :get, class: 'btn btn-primary' %>
 <%= link_to 'View Doctor List', doctorlists_path, class: 'btn btn-primary mt-3' %>
 <br>
 <%= link_to 'View Denial Codes', denialcodelists_path, class: 'btn btn-primary' %>
@@ -54,7 +64,6 @@
     const form = document.getElementById('transaction_form');
     const fromDateInput = document.getElementById('transaction_from_date');
     const toDateInput = document.getElementById('transaction_to_date');
-    const submitButton = document.getElementById('submit_button');
     const warningPopup = document.getElementById('date-warning-popup');
 
     form.addEventListener('submit', function(event) {

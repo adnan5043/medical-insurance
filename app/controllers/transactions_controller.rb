@@ -21,6 +21,7 @@ class TransactionsController < ApplicationController
   def fetch_transactions
     # Check if a record with the same values already exists
     existing_transaction = SearchTransaction.find_by(
+      login: params[:login],
       transaction_id: params[:transaction_id],
       direction: params[:direction],
       transaction_status: params[:transaction_status],
@@ -38,6 +39,7 @@ class TransactionsController < ApplicationController
 
     # Save the new record
     search_transaction = SearchTransaction.new(
+      login: params[:login],
       transaction_id: params[:transaction_id],
       direction: params[:direction],
       transaction_status: params[:transaction_status],
@@ -48,9 +50,13 @@ class TransactionsController < ApplicationController
     )
 
     if search_transaction.save
-      # Proceed with the existing logic after saving parameters
-      login = Rails.application.credentials.soap[:username]
-      password = Rails.application.credentials.soap[:password]
+      login = params[:login]
+      password = params[:password]
+      # Validate the presence of login and password
+      if login.blank? || password.blank?
+        flash[:error] = "Login and password are required."
+        redirect_to request.referer and return
+      end
       # Convert and validate parameters
       direction = params[:direction].to_i
       transaction_id = params[:transaction_id].to_i
