@@ -11,6 +11,8 @@ class Transaction < ApplicationRecord
     # Debug: print the XML structure to see how it's parsed
     # puts xml_doc.to_xml
     # Extract Header data
+    data_type = xml_doc.root.name
+
     header = xml_doc.at_xpath('//Header')
     sender_id = header.at_xpath('SenderID')&.text
     receiver_id = header.at_xpath('ReceiverID')&.text
@@ -64,7 +66,9 @@ class Transaction < ApplicationRecord
           activity_net: activity_net,
           activity_payment_amount: activity_payment_amount,
           activity_clinician: activity_clinician,
-          denial_code: denial_code # Save DenialCode
+          denial_code: denial_code,
+          data_type: data_type
+
         )
       end
     end
