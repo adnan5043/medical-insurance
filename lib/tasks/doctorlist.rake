@@ -1,7 +1,7 @@
 # lib/tasks/doctorlist.rake
 namespace :doctorlist do
   desc "Update doctors' names and license numbers"
-  task update: :environment do
+  task create: :environment do
     doctors = [
       { doctor_name: "Medyan Alia", activity_clinician: "DHA-P-00021514" },
       { doctor_name: "Anas Karkout", activity_clinician: "DHA-P-00040970" },
@@ -42,15 +42,9 @@ namespace :doctorlist do
 
     doctors.each do |doctor|
       # Find the existing record and update the doctor_name
-      existing_doctor = Doctorlist.find_by(activity_clinician: doctor[:activity_clinician])
+      doctor = Doctorlist.find_or_create_by(doctor_name: doctor[:doctor_name], activity_clinician: doctor[:activity_clinician])
 
-      if existing_doctor
-        existing_doctor.update(doctor_name: doctor[:doctor_name])
-        puts "Updated: #{doctor[:doctor_name]} (#{doctor[:activity_clinician]})"
-      else
-        puts "No record found for #{doctor[:activity_clinician]}"
-      end
+      puts "Record: #{doctor.inspect}"
     end
-    puts "Doctor records updated successfully!"
   end
 end

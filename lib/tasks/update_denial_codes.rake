@@ -1,6 +1,6 @@
 namespace :denial_codes do
   desc "Update denial codes from the given list"
-  task :update => :environment do
+  task :create => :environment do
     denial_codes = [
       { denial_code: "AUTH-001", description: "Prior approval is required and was not obtained" },
       { denial_code: "AUTH-003", description: "PriorAuthorizationNumber is invalid" },
@@ -107,14 +107,8 @@ namespace :denial_codes do
 
 
     denial_codes.each do |code|
-      record = Denialcodelist.find_by(denial_code: code[:denial_code])
-      if record
-        record.update!(description: code[:description])
-        puts "Updated Denial Code: #{code[:denial_code]}"
-      else
-        puts "Skipped Denial Code (does not exist): #{code[:denial_code]}"
-      end
+      record = Denialcodelist.find_or_create_by(denial_code: code[:denial_code], description: code[:description])
+      puts "Updated Denial Code: #{record.inspect}"
     end
-    puts "All existing records have been updated successfully!"
   end
 end
