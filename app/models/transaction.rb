@@ -3,6 +3,7 @@ class Transaction < ApplicationRecord
 
   # has_many :transaction_data, dependent: :destroy
   has_many :transaction_data, class_name: 'TransactionData', foreign_key: 'transaction_id'
+  belongs_to :search_transaction, optional: true
 
   def save_transaction_data
     # Parse the XML content
