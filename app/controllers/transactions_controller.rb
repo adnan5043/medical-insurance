@@ -3,7 +3,8 @@ class TransactionsController < ApplicationController
   require 'base64'
 
   def index
-    @transactions = TransactionData.all
+    # @transactions = TransactionData.all
+    @transactions = TransactionData.where(data_type: 'Remittance.Advice')
     respond_to do |format|
       format.html
       format.xlsx do
@@ -81,7 +82,7 @@ class TransactionsController < ApplicationController
         if file_ids.any?
           Rails.logger.info "Processing FileIDs: #{file_ids.inspect}"
           file_ids.each do |file_id|
-            fetch_file_details_from_soap(file_id, login, password)
+            fetch_file_details_from_soap(file_id, login, password, search_transaction.id)
           end
         else
           Rails.logger.warn "No FileIDs found in the fetched transactions"
@@ -138,7 +139,7 @@ class TransactionsController < ApplicationController
       nil
   end
 
-  def fetch_file_details_from_soap(file_id, login, password)
+  def fetch_file_details_from_soap(file_id, login, password, search_transaction_id)
     if Transaction.exists?(file_id: file_id)
       Rails.logger.info "File ID #{file_id} already exists. Skipping..."
       return nil 
@@ -154,7 +155,7 @@ class TransactionsController < ApplicationController
       decoded_data = Base64.decode64(file_content_base64) 
       if decoded_data.present?
         # Create the Transaction record
-        transaction = Transaction.create!(file_id: file_id, xml_content: decoded_data)
+        transaction = Transaction.create!(file_id: file_id, xml_content: decoded_data, search_transaction_id: search_transaction_id)
         
         # Save the related TransactionData
         transaction.save_transaction_data
