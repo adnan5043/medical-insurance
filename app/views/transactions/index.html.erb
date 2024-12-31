@@ -49,7 +49,9 @@
   <%= form.submit 'Send Request', class: 'btn btn-primary mt-3', id: 'submit_button' %>
 <% end %>
 
-<%= button_to 'Download Report', transactions_path(format: :xlsx), method: :get, class: 'btn btn-primary' %>
+<%#= button_to 'Download Report', transactions_path(format: :xlsx), method: :get, class: 'btn btn-primary' %>
+<%= link_to "View Report", download_report_transactions_path, class: "btn btn-primary" %>
+<br>
 <%= link_to 'View Doctor List', doctorlists_path, class: 'btn btn-primary mt-3' %>
 <br>
 <%= link_to 'View Denial Codes', denialcodelists_path, class: 'btn btn-primary' %>

@@ -4,9 +4,27 @@ class TransactionsController < ApplicationController
 
   def index
     # @transactions = TransactionData.all
-    @transactions = TransactionData.where(data_type: 'Remittance.Advice')
+    # @transactions = TransactionData.where(data_type: 'Remittance.Advice')
+    # respond_to do |format|
+    #   format.html
+    #   format.xlsx do
+    #     render xlsx: "report", template: "transactions/report"
+    #   end
+    # end
+  end
+
+  def download_report
+    username = params[:username]
+    user_id = params[:user_id]
+
+    if username.present? && user_id.present?
+      @transactions = TransactionData.where("sender_id = ? OR receiver_id = ?", user_id, user_id)
+    else
+      @transactions = TransactionData.none
+    end
+
     respond_to do |format|
-      format.html
+      format.html 
       format.xlsx do
         render xlsx: "report", template: "transactions/report"
       end
