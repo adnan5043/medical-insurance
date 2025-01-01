@@ -14,34 +14,54 @@ doctorlist_mapping = Doctorlist.where(activity_clinician: @transactions.pluck(:a
 denialcode_mapping = Denialcodelist.where(denial_code: @transactions.pluck(:denial_code).uniq)
                                    .index_by(&:denial_code)
 
-# Sort transactions by transaction_date in ascending order
-sorted_transactions = @transactions.sort_by { |t| t.transaction_date }
+# Fetch remittance data (example: matching by claim_id)
+remittance_data = TransactionData.where(claim_id: @transactions.pluck(:claim_id), data_type: 'Remittance.Advice').index_by(&:claim_id)
 
-# Group transactions by year, month, and day after sorting
-grouped_transactions = sorted_transactions.group_by { |t| t.transaction_date.to_date }
+# Pre-fetch transactions for submission data for faster lookups
+submission_data = @transactions.where(data_type: 'Claim.Submission').index_by(&:claim_id)
+
+has_submission_rows = []
+no_submission_rows = []
+no_remittance_rows = []
 
 # Add worksheet
 wb.add_worksheet(name: "Transactions") do |sheet|
-  # Add header row with bold style
+  # Add header row with bold style, including a "Remittance Data" column
   sheet.add_row [
     "Sender ID", "Receiver ID", "Receiver", "Claim ID", "Transaction Date",
     "Activity Clinician", "Doctor Name", "Activity ID", "Activity Code",
     "Activity Start Date", "Activity Quantity", "Activity Net",
     "Activity Payment Amount", "Claim Date Settlement",
-    "Claim Payment Reference", "Denial Code", "Denial code Description", "RA Comments"
+    "Claim Payment Reference", "Denial Code", "Denial code Description", "RA Comments", "Data Type", "Compare Data"
   ], style: header_style
 
-  # Add rows for all transactions without empty lines
-  grouped_transactions.each do |_, transactions| # No need to use `date`
-    transactions.each do |transaction|
+  # Iterate over transactions in batches to avoid memory overload
+  @transactions.find_in_batches(batch_size: 5000) do |batch|
+    batch.each do |transaction|
       # Use preloaded doctorlist mapping
       doctor_name = doctorlist_mapping[transaction.activity_clinician]&.doctor_name || ""
 
       # Lookup denial description from the Denialcodelist mapping
       denial_description = denialcode_mapping[transaction.denial_code]&.description || ""
 
-      # Add transaction row
-      sheet.add_row [
+      # Find remittance data based on claim_id
+      remittance = remittance_data[transaction.claim_id]
+
+      # Compare data logic (optimized)
+      compare_data = "N/A"
+      if transaction.data_type == "Claim.Submission"
+        # Directly check for corresponding remittance in preloaded remittance_data
+        compare_data = remittance.nil? ? "no remittance" : "has a remittance"
+      elsif transaction.data_type == "Remittance.Advice"
+        # Directly check for corresponding submission in preloaded submission_data
+        corresponding_submission = submission_data[transaction.claim_id]
+        compare_data = corresponding_submission.nil? ? "no submission" : "has a submission"
+      end
+
+      next if compare_data == "has a remittance"
+
+      # Prepare the row data
+      row_data = [
         transaction.sender_id, 
         transaction.receiver_id,            
         transaction.provider_id,             
@@ -59,8 +79,25 @@ wb.add_worksheet(name: "Transactions") do |sheet|
         transaction.payment_reference,
         transaction.denial_code, 
         denial_description,
-        transaction.comments    
+        transaction.comments,
+        transaction.data_type,
+        compare_data
       ]
+
+      # Add the row to the appropriate array based on compare_data
+      case compare_data
+      when "has a submission"
+        has_submission_rows << row_data
+      when "no submission"
+        no_submission_rows << row_data
+      when "no remittance"
+        no_remittance_rows << row_data
+      end
     end
   end
+
+  # Now add the rows in the desired order
+  has_submission_rows.each { |row| sheet.add_row(row) }
+  no_submission_rows.each { |row| sheet.add_row(row) }
+  no_remittance_rows.each { |row| sheet.add_row(row) }
 end
