@@ -29,6 +29,8 @@ gem 'savon', '~> 2.0'
 gem 'nokogiri'
 gem 'devise'
 gem 'recaptcha', require: 'recaptcha/rails'
+gem 'delayed_job_active_record'
+gem 'daemons'
 
 # Use Redis adapter to run Action Cable in production
 # gem "redis", ">= 4.0.1"
@@ -42,7 +44,7 @@ gem 'recaptcha', require: 'recaptcha/rails'
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]
 gem 'axlsx'
-gem 'axlsx_rails'
+gem 'caxlsx_rails'
 
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", require: false

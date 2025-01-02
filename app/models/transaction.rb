@@ -2,7 +2,7 @@ class Transaction < ApplicationRecord
   validates :file_id, uniqueness: true
 
   # has_many :transaction_data, dependent: :destroy
-  has_many :transaction_data, class_name: 'TransactionData', foreign_key: 'transaction_id'
+  has_many :transaction_data, class_name: 'TransactionData', foreign_key: 'transaction_id', dependent: :destroy
   belongs_to :search_transaction, optional: true
 
   def save_transaction_data
