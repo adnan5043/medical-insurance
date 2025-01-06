@@ -1,0 +1,33 @@
+<%= form_with(model: branch, local: true) do |form| %>
+  <% if branch.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(branch.errors.count, "error") %> prohibited this branch from being saved:</h2>
+      <ul>
+        <% branch.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+  <div>
+    <%= form.label :username %>
+    <%= form.text_field :username, class: "form-control" %>
+  </div>
+  <div>
+    <%= form.label :login %>
+    <%= form.text_field :login %>
+  </div>
+
+  <div>
+    <%= form.label :password %>
+    <%= form.password_field :password %>
+  </div>
+
+  <div>
+    <%= form.label :clinical_Id %>
+    <%= form.text_field :clinical_id,placeholder: " (e.g., DHA-F-0090081)" %>
+  </div>
+  <div>
+    <%= form.submit %>
+  </div>
+<% end %>

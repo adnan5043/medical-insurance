@@ -1,0 +1,28 @@
+<h1>Branches</h1>
+<%= link_to 'New Branch', new_branch_path, class: 'btn btn-primary' %>
+<br>
+<%= link_to 'Back to home', root_path, class: 'btn btn-secondary' %>
+
+<table>
+  <thead>
+    <tr>
+      <th>Username</th>
+      <th>Login</th>
+      <th>Clinical ID</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @branches.each do |branch| %>
+      <tr>
+        <td><%= branch.username %></td>
+        <td><%= branch.login %></td>
+        <td><%= branch.clinical_id %></td>
+        <td>
+          <%= link_to 'Edit', edit_branch_path(branch) %> 
+          <%= button_to 'Delete', branch_path(branch), method: :delete, data: { confirm: 'Are you sure?' } %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

@@ -7,19 +7,21 @@ class TransactionsController < ApplicationController
 
   def download_report
     username = params[:username]
-    user_id = params[:user_id]
-
-    if username.present? && user_id.present?
-      @transactions = TransactionData.where("sender_id = ? OR receiver_id = ?", user_id, user_id)
-    else
-      @transactions = TransactionData.none
-    end
+    @transactions = if username.present?
+                      branch = Branch.find_by(username: username)
+                      if branch
+                        clinical_id = branch.clinical_id
+                        TransactionData.where("sender_id = ? OR receiver_id = ?", clinical_id, clinical_id)
+                      else
+                        TransactionData.none
+                      end
+                    else
+                      TransactionData.none
+                    end
 
     respond_to do |format|
       format.html
-      format.xlsx do
-        render xlsx: "report", template: "transactions/report"
-      end
+      format.xlsx { render xlsx: "report", template: "transactions/report" }
     end
   end
 
@@ -30,34 +32,29 @@ class TransactionsController < ApplicationController
   end
 
   def fetch_transactions
-    # Exclude password from params before saving it to the database
-    transaction_params = fetch_transactions_params.to_h.except(:password,:authenticity_token,:commit )
+    username = params[:username]
+    return render_notification("Username is required.") if username.blank?
 
-    # Check if a record with the same values already exists
-    existing_transaction = SearchTransaction.find_by(
-      login: transaction_params[:login],
-      transaction_id: transaction_params[:transaction_id],
-      direction: transaction_params[:direction],
-      transaction_status: transaction_params[:transaction_status],
-      min_record_count: transaction_params[:min_record_count],
-      max_record_count: transaction_params[:max_record_count],
-      transaction_from_date: transaction_params[:transaction_from_date].presence,
-      transaction_to_date: transaction_params[:transaction_to_date].presence
-    )
+    branch = Branch.find_by(username: username)
+    return render_notification("Branch with this username not found.") unless branch
 
-    if existing_transaction
-      render turbo_stream: turbo_stream.append(:notifications, "No new request. Same parameters already exist in the database.")
-      return
+    login, password = branch.login,branch.password 
+
+    transaction_params = fetch_transactions_params.except(:password, :authenticity_token, :commit, :username)
+    if transaction_exists?(login, transaction_params)
+      return render_notification("No new request. Same parameters already exist in the database.")
     end
 
-    # Save the new record without the password
-    search_transaction = SearchTransaction.new(transaction_params)
-
+    search_transaction = SearchTransaction.new(transaction_params.merge(login: login))
     if search_transaction.save
-      ProcessTransactionsJob.perform_later(fetch_transactions_params.merge(search_transaction_id: search_transaction.id))
-      render turbo_stream: turbo_stream.append(:notifications, "Request parameters saved and transaction files will be processed in the background.")
+      ProcessTransactionsJob.perform_later(fetch_transactions_params.merge(
+                                             login: login,
+                                             password: password,
+                                             search_transaction_id: search_transaction.id
+                                           ))
+      render_notification("Request parameters saved and transaction files will be processed in the background.")
     else
-      render turbo_stream: turbo_stream.append(:notifications, "Failed to save request parameters: #{search_transaction.errors.full_messages.join(', ')}")
+      render_notification("Failed to save request parameters: #{search_transaction.errors.full_messages.join(', ')}")
     end
   end
 
@@ -65,17 +62,26 @@ class TransactionsController < ApplicationController
 
   def fetch_transactions_params
     params.permit(
-      :login, 
-      :password, 
-      :transaction_id, 
-      :direction, 
-      :transaction_status, 
-      :min_record_count, 
-      :max_record_count, 
-      :transaction_from_date, 
-      :transaction_to_date,
-      :authenticity_token, 
-      :commit
+      :username, :login, :password, :transaction_id, :direction,
+      :transaction_status, :min_record_count, :max_record_count,
+      :transaction_from_date, :transaction_to_date, :authenticity_token, :commit
     )
+  end
+
+  def transaction_exists?(login, params)
+    SearchTransaction.exists?(
+      login: login,
+      transaction_id: params[:transaction_id],
+      direction: params[:direction],
+      transaction_status: params[:transaction_status],
+      min_record_count: params[:min_record_count],
+      max_record_count: params[:max_record_count],
+      transaction_from_date: params[:transaction_from_date].presence,
+      transaction_to_date: params[:transaction_to_date].presence
+    )
+  end
+
+  def render_notification(message)
+    render turbo_stream: turbo_stream.append(:notifications, message)
   end
 end

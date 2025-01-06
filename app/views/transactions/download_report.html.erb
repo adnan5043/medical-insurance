@@ -1,12 +1,10 @@
 <h1>Download report</h1>
+<%= link_to 'Back to home', root_path, class: 'btn btn-secondary' %>
+
 <%= form_with url: download_report_transactions_path(format: :xlsx), method: :get, local: true do |f| %>
   <div>
     <%= f.label :username, "Username" %>
-    <%= f.text_field :username, placeholder: "Enter Username", value: params[:username], class: "form-control" %>
-  </div>
-  <div>
-    <%= f.label :user_id, "ID" %>
-    <%= f.text_field :user_id, placeholder: " (e.g., DHA-F-0090081)", value: params[:user_id], class: "form-control" %>
+    <%= f.select :username, Branch.pluck(:username, :username), { prompt: "Select Username" }, class: "form-control" %>
   </div>
   <div>
     <%= f.submit "Download report", class: "btn btn-primary" %>

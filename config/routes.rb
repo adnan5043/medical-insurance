@@ -1,8 +1,9 @@
 Rails.application.routes.draw do
+  resources :branches
   devise_for :users
   resources :denialcodelists
   resources :doctorlists
-  resources :transactions, only: [] do
+  resources :transactions, only: [:show] do
     collection do
         get 'download_report' 
       end
