@@ -31,6 +31,7 @@ gem 'devise'
 gem 'recaptcha', require: 'recaptcha/rails'
 gem 'delayed_job_active_record'
 gem 'daemons'
+gem 'whenever', require: false
 
 # Use Redis adapter to run Action Cable in production
 # gem "redis", ">= 4.0.1"
