@@ -35,46 +35,52 @@ class ProcessTransactionsJob < ApplicationJob
     else
       Rails.logger.warn "No transaction files were retrieved from the SOAP service"
     end
+
+    # Process the next job in the sequence, if available
+    if params[:sequence]&.any?
+      next_job_params = params[:sequence].shift
+      ProcessTransactionsJob.perform_later(params.merge(next_job_params))
+    end
   end
 
   private
 
   def fetch_transaction_files_using_http(login, password, direction, transaction_id, transaction_status, min_record_count, max_record_count, transaction_from_date, transaction_to_date)
-      uri = URI.parse("http://dhpo.eclaimlink.ae/ValidateTransactions.asmx")
+    uri = URI.parse("http://dhpo.eclaimlink.ae/ValidateTransactions.asmx")
 
-      # Define the XML body for the raw SOAP HTTP request
-      request_body = <<~XML
-        <?xml version="1.0" encoding="utf-8"?>
-        <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-          <soap:Body>
-            <SearchTransactions xmlns="http://www.eClaimLink.ae/">
-              <login>#{login}</login>
-              <pwd>#{password}</pwd>
-              <direction>#{direction}</direction>
-              <transactionID>#{transaction_id}</transactionID>
-              <TransactionStatus>#{transaction_status}</TransactionStatus>
-              <minRecordCount>#{min_record_count}</minRecordCount>
-              <maxRecordCount>#{max_record_count}</maxRecordCount>
-              <transactionFromDate>#{transaction_from_date}</transactionFromDate>
-              <transactionToDate>#{transaction_to_date}</transactionToDate>
-            </SearchTransactions>
-          </soap:Body>
-        </soap:Envelope>
-      XML
+    # Define the XML body for the raw SOAP HTTP request
+    request_body = <<~XML
+      <?xml version="1.0" encoding="utf-8"?>
+      <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+        <soap:Body>
+          <SearchTransactions xmlns="http://www.eClaimLink.ae/">
+            <login>#{login}</login>
+            <pwd>#{password}</pwd>
+            <direction>#{direction}</direction>
+            <transactionID>#{transaction_id}</transactionID>
+            <TransactionStatus>#{transaction_status}</TransactionStatus>
+            <minRecordCount>#{min_record_count}</minRecordCount>
+            <maxRecordCount>#{max_record_count}</maxRecordCount>
+            <transactionFromDate>#{transaction_from_date}</transactionFromDate>
+            <transactionToDate>#{transaction_to_date}</transactionToDate>
+          </SearchTransactions>
+        </soap:Body>
+      </soap:Envelope>
+    XML
 
-      # Create the POST request for the SOAP servic
-      request = Net::HTTP::Post.new(uri.path,
-                                    { 'Content-Type' => 'text/xml; charset=utf-8',
-                                      'SOAPAction' => '"http://www.eClaimLink.ae/SearchTransactions"' })
-      request.body = request_body
+    # Create the POST request for the SOAP service
+    request = Net::HTTP::Post.new(uri.path,
+                                  { 'Content-Type' => 'text/xml; charset=utf-8',
+                                    'SOAPAction' => '"http://www.eClaimLink.ae/SearchTransactions"' })
+    request.body = request_body
 
-      # Send the request and handle the response
-      response = Net::HTTP.new(uri.host, uri.port).start { |http| http.request(request) }
-      Rails.logger.info("SOAP Response (HTTP): #{response.body}")
-      transaction_files_xml=response.body
-    rescue StandardError => e
-      Rails.logger.error "HTTP Request Error: #{e.message}"
-      nil
+    # Send the request and handle the response
+    response = Net::HTTP.new(uri.host, uri.port).start { |http| http.request(request) }
+    Rails.logger.info("SOAP Response (HTTP): #{response.body}")
+    response.body
+  rescue StandardError => e
+    Rails.logger.error "HTTP Request Error: #{e.message}"
+    nil
   end
 
   def fetch_file_details_from_soap(file_id, login, password)
@@ -87,14 +93,12 @@ class ProcessTransactionsJob < ApplicationJob
     begin
       # Make SOAP call to fetch the file details
       response = client.call(:download_transaction_file, message: { login: login, pwd: password, fileId: file_id })
-      # puts response.inspect
       file_content_base64 = response.body.dig(:download_transaction_file_response, :file)
 
       decoded_data = Base64.decode64(file_content_base64) 
       if decoded_data.present?
         # Create the Transaction record
         transaction = Transaction.create!(file_id: file_id, xml_content: decoded_data)
-        # transaction = Transaction.create!(file_id: file_id, xml_content: decoded_data, search_transaction_id: search_transaction_id)
         
         # Save the related TransactionData
         transaction.save_transaction_data

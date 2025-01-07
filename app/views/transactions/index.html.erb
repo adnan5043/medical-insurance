@@ -5,31 +5,7 @@
     <%= form.label :username, "Username" %>
     <%= form.collection_select :username, Branch.all, :username, :username, { prompt: "Select a Username" }, class: 'form-control', id: 'username_select' %>
   </div>
-  <div class="form-group">
-    <%= form.label :transaction_id, "Transaction ID" %>
-    <%= form.select :transaction_id, options_for_select([['Claim Submission', 2], ['Remittance Advice', 8], ['Prior Request', 16], ['Prior Authorization', 32]]), { selected: 8 }, class: 'form-control' %>
-  </div>
-
-  <div class="form-group">
-    <%= form.label :direction, "Direction" %>
-    <%= form.select :direction, options_for_select([['Sent Only', 1], ['Received Only', 2]]), { selected: 1 }, class: 'form-control' %>
-  </div>
-
-  <div class="form-group">
-    <%= form.label :transaction_status, "Transaction Status" %>
-    <%= form.select :transaction_status, options_for_select([['New Only', 1], ['Downloaded Only', 2]]), { selected: 2 }, class: 'form-control' %>
-  </div>
-
-  <div class="form-group">
-    <%= form.label :min_record_count, "Min Record Count" %>
-    <%= form.number_field :min_record_count, value: -1, class: 'form-control' %>
-  </div>
-
-  <div class="form-group">
-    <%= form.label :max_record_count, "Max Record Count" %>
-    <%= form.number_field :max_record_count, value: -1, class: 'form-control' %>
-  </div>
-
+  
   <div class="form-group">
     <%= form.label :transaction_from_date, "From Date" %>
     <%= form.datetime_local_field :transaction_from_date, value: '', class: 'form-control', id: 'transaction_from_date' %>

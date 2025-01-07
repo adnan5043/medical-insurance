@@ -38,20 +38,37 @@ class TransactionsController < ApplicationController
     branch = Branch.find_by(username: username)
     return render_notification("Branch with this username not found.") unless branch
 
-    login, password = branch.login,branch.password 
-
+    login, password = branch.login, branch.password
     transaction_params = fetch_transactions_params.except(:password, :authenticity_token, :commit, :username)
+
+    # Check if the transaction already exists with the matching login, from_date, and to_date
     if transaction_exists?(login, transaction_params)
       return render_notification("No new request. Same parameters already exist in the database.")
     end
 
+    # Create and save the new SearchTransaction with the provided parameters
     search_transaction = SearchTransaction.new(transaction_params.merge(login: login))
+
     if search_transaction.save
-      ProcessTransactionsJob.perform_later(fetch_transactions_params.merge(
-                                             login: login,
-                                             password: password,
-                                             search_transaction_id: search_transaction.id
-                                           ))
+      # Pass the search_transaction_id to the job and queue it for background processing
+      ProcessTransactionsJob.perform_later({
+        login: login,
+        password: password,
+        transaction_from_date: params[:transaction_from_date],
+        transaction_to_date: params[:transaction_to_date],
+        direction: 2, 
+        transaction_id: 8, 
+        transaction_status: 1, 
+        min_record_count: -1,
+        max_record_count: -1,
+        sequence: [
+          { direction: 2, transaction_id: 8, transaction_status: 2 }, 
+          { direction: 1, transaction_id: 2, transaction_status: 1 }, 
+          { direction: 1, transaction_id: 2, transaction_status: 2 }
+        ],
+        search_transaction_id: search_transaction.id  # Include search_transaction_id in the job
+      })
+
       render_notification("Request parameters saved and transaction files will be processed in the background.")
     else
       render_notification("Failed to save request parameters: #{search_transaction.errors.full_messages.join(', ')}")
@@ -71,13 +88,8 @@ class TransactionsController < ApplicationController
   def transaction_exists?(login, params)
     SearchTransaction.exists?(
       login: login,
-      transaction_id: params[:transaction_id],
-      direction: params[:direction],
-      transaction_status: params[:transaction_status],
-      min_record_count: params[:min_record_count],
-      max_record_count: params[:max_record_count],
-      transaction_from_date: params[:transaction_from_date].presence,
-      transaction_to_date: params[:transaction_to_date].presence
+      transaction_from_date: params[:transaction_from_date],
+      transaction_to_date: params[:transaction_to_date]
     )
   end
 
@@ -85,3 +97,4 @@ class TransactionsController < ApplicationController
     render turbo_stream: turbo_stream.append(:notifications, message)
   end
 end
+  
