@@ -1,0 +1,60 @@
+<div class="sidebar">
+  <div class="sidebar-wrapper">
+    <%= link_to(root_path) do %>
+      <div class="logo">
+        <%= image_tag('img/mdi1.png', class: 'sidebar-image') %>
+        <span class="logo-text logo-normal">MedicalInsurance</span>
+      </div>
+    <% end %>
+
+    <ul class="nav">
+      <!-- Home -->
+      <li class="<%= 'active' if current_page?(root_path) %>">
+        <%= link_to root_path do %>
+          <i class="fas fa-cogs"></i>
+          <p>API Request</p>
+        <% end %>
+      </li>
+
+      <!-- Transactions -->
+      <li class="<%= 'active' if current_page?(download_report_transactions_path) %>">
+        <%= link_to download_report_transactions_path do %>
+          <i class="fas fa-file-download"></i>
+          <p>Report</p>
+        <% end %>
+      </li>
+
+      <!-- Doctor List -->
+      <li class="<%= 'active' if controller.controller_name == 'doctorlists' %>">
+        <%= link_to doctorlists_path do %>
+          <i class="fas fa-user-md"></i>
+          <p>Doctor List</p>
+        <% end %>
+      </li>
+
+      <!-- Denial Codes -->
+      <li class="<%= 'active' if controller.controller_name == 'denialcodelists' %>">
+        <%= link_to denialcodelists_path do %>
+          <i class="fas fa-file-alt"></i>
+          <p>Denial Codes</p>
+        <% end %>
+      </li>
+
+      <!-- Branches -->
+      <li class="<%= 'active' if controller.controller_name == 'branches' %>">
+        <%= link_to branches_path do %>
+          <i class="fas fa-code-branch"></i>
+          <p>Branches</p>
+        <% end %>
+      </li>
+
+      <!-- Logout -->
+      <li>
+        <%= link_to destroy_user_session_path do %>
+          <i class="fas fa-sign-out-alt"></i>
+          <p>Logout</p>
+        <% end %>
+      </li>
+    </ul>
+  </div>
+</div>

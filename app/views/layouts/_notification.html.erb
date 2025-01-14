@@ -1,0 +1,56 @@
+<div class="notification-wrapper">
+  <!-- Flash Messages -->
+  <% if flash[:notice] %>
+    <div class="flash-notice"><%= flash[:notice] %></div>
+  <% end %>
+
+  <% if flash[:alert] %>
+    <div class="flash-alert"><%= flash[:alert] %></div>
+  <% end %>
+</div>
+<style>
+  .flash-notice, .flash-alert {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    min-width: 30%;
+    z-index: 9999;
+    padding: 10px 20px;
+    border-radius: 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: none;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+  }
+
+  .flash-notice {
+    background-color: #00B387; 
+    color: white; 
+  }
+
+  .flash-alert {
+    background-color: rgb(183, 93, 132); 
+    color: white; 
+  }
+
+  .notification-wrapper div {
+    text-align: left;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+</style>
+
+<!-- JS to Display Notifications -->
+<script>
+  $(document).ready(function() {
+    // Smoothly show notifications when flash messages exist
+    if ($('.flash-notice').length > 0 || $('.flash-alert').length > 0) {
+      $('.flash-notice, .flash-alert').fadeIn('slow');
+    }
+
+    // Fade out notifications after 5 seconds
+    setTimeout(function() {
+      $('.flash-notice, .flash-alert').fadeOut('slow');
+    }, 5000); // Fade out after 5 seconds
+  });
+</script>

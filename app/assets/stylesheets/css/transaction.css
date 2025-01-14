@@ -1,0 +1,27 @@
+
+  .bg-dark {
+    background-color: #2F2F2F !important;
+  }
+  h2 {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+  /* Style the submit button */
+  .btn-primary {
+    font-size: 16px;
+    font-weight: 600;
+    padding: 12px 24px;
+    border-radius: 50px;
+  }
+  .form-control {
+    font-size: 16px;
+    padding: 12px;
+    border-radius: 8px;
+  }
+/*  .light-white {
+    background-color: black; 
+  }*/
+  .form-label {
+    color: #ffffff; 
+  }

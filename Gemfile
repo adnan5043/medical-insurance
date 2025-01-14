@@ -32,6 +32,11 @@ gem 'recaptcha', require: 'recaptcha/rails'
 gem 'delayed_job_active_record'
 gem 'daemons'
 gem 'whenever', require: false
+gem "bootstrap"
+gem 'sassc-rails'
+gem "jquery-rails"
+gem 'kaminari'
+gem 'kaminari-bootstrap'
 
 # Use Redis adapter to run Action Cable in production
 # gem "redis", ">= 4.0.1"
@@ -77,6 +82,7 @@ group :test do
   gem "selenium-webdriver"
 end
 
+gem "jquery", "~> 0.0.1"
 
 gem 'ed25519', '>= 1.2', '< 2.0'
 gem 'bcrypt_pbkdf', '>= 1.0', '< 2.0'
