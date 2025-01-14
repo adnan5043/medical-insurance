@@ -1,28 +1,116 @@
-<h1>Branches</h1>
-<%= link_to 'New Branch', new_branch_path, class: 'btn btn-primary' %>
-<br>
-<%= link_to 'Back to home', root_path, class: 'btn btn-secondary' %>
+<div class="card">
+  <div class="card-header">
+    <h4 class="card-title">Branches</h4>
+  </div>
 
-<table>
-  <thead>
-    <tr>
-      <th>Username</th>
-      <th>Login</th>
-      <th>Clinical ID</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @branches.each do |branch| %>
-      <tr>
-        <td><%= branch.username %></td>
-        <td><%= branch.login %></td>
-        <td><%= branch.clinical_id %></td>
-        <td>
-          <%= link_to 'Edit', edit_branch_path(branch) %> 
-          <%= button_to 'Delete', branch_path(branch), method: :delete, data: { confirm: 'Are you sure?' } %>
-        </td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
+  <div class="card-body">
+    <!-- Button to trigger the modal -->
+    <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#add-branch-modal">
+      New Branch
+    </button>
+
+    <div class="table-responsive">
+      <table class="table table-striped custom-table table-hover table-checkable order-column valign-middle">
+        <thead class="text-primary">
+          <tr>
+            <th>#</th>
+            <th>Username</th>
+            <th>Login</th>
+            <th>Clinical ID</th>
+            <th class="text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @branches.each_with_index do |branch,index| %>
+            <tr>
+              <td><%= index + 1 %></td> 
+              <td><%= branch.username %></td>
+              <td><%= branch.login %></td>
+              <td><%= branch.clinical_id %></td>
+              <td class="text-center">
+                <div class="d-flex justify-content-center">
+                  <%= link_to edit_branch_path(branch), remote: true, data: { turbo_frame: 'modal' }, class: 'btn btn-link text-info p-0 mx-3' do %>
+                    <i class="fas fa-edit fa-lg"></i>
+                  <% end %>
+                  <%= button_to branch_path(branch), method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-link text-danger p-0" do %>
+                     <i class="fas fa-trash-alt fa-lg"></i>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+            <!-- Pagination -->
+      <div class="d-flex justify-content-center mt-3">
+        <%= paginate @branches, theme: 'bootstrap4' %>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="add-branch-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog bg-dark" role="document">
+    <div class="modal-content bg-dark">
+      <div class="modal-header">
+        <h4 class="modal-title" id="exampleModalLongTitle">New Branch</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div id="modal-body-content">
+        <!-- Pass a new Branch instance to the form -->
+        <%= form_with(model: Branch.new, url: branches_path, local: true) do |form| %>
+          <% if form.object.errors.any? %>
+            <div id="error_explanation">
+              <h2><%= pluralize(form.object.errors.count, "error") %> prohibited this branch from being saved:</h2>
+              <ul>
+                <% form.object.errors.full_messages.each do |message| %>
+                  <li><%= message %></li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+          <div class="modal-body">
+            <div class="form text-white-50 form-fields">
+              <div class="form-row">
+                <div class="form-group col-md-12">
+                  <%= form.label :username %>
+                  <%= form.text_field :username, class: "form-control" %>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group col-md-12">
+                  <%= form.label :login %>
+                  <%= form.text_field :login, class: "form-control" %>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group col-md-12">
+                  <%= form.label :password %>
+                  <%= form.password_field :password, class: "form-control" %>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group col-md-12">
+                  <%= form.label :clinical_id %>
+                  <%= form.text_field :clinical_id, placeholder: " (e.g., DHA-F-0090081)", class: "form-control" %>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <%= form.submit 'Save', class: 'btn btn-fill btn-info' %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+

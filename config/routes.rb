@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  resources :branches
+  resources :branches, only: [:index, :new, :create, :edit, :update, :destroy]
   devise_for :users
   resources :denialcodelists
   resources :doctorlists

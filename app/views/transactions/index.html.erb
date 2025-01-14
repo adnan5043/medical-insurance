@@ -1,77 +1,69 @@
-<h2 class="mt-4">Get Transaction Files</h2>
+<h2 class="mt-4 text-center text-primary">Get Transaction Data</h2>
 
-<%= form_with url: fetch_transactions_transactions_path, method: :post, class: 'mt-3', id: 'transaction_form' do |form| %>
-  <div class="form-group">
-    <%= form.label :username, "Username" %>
+<%= form_with url: fetch_transactions_transactions_path, method: :post, class: 'mt-3', id: 'transaction_form', html: { class: 'shadow-lg p-4 rounded bg-dark' } do |form| %>
+  <div class="form-group mb-3">
+    <%= form.label :username, "Username", class: 'form-label text-white' %>
     <%= form.collection_select :username, Branch.all, :username, :username, { prompt: "Select a Username" }, class: 'form-control', id: 'username_select' %>
   </div>
   
-  <div class="form-group">
-    <%= form.label :transaction_from_date, "From Date" %>
-    <%= form.datetime_local_field :transaction_from_date, value: '', class: 'form-control', id: 'transaction_from_date' %>
+  <div class="form-group mb-3">
+    <%= form.label :transaction_from_date, "From Date", class: 'form-label text-white' %>
+    <%= form.datetime_local_field :transaction_from_date, value: '', class: 'form-control light-white', id: 'transaction_from_date' %>
   </div>
 
-  <div class="form-group">
-    <%= form.label :transaction_to_date, "To Date" %>
-    <%= form.datetime_local_field :transaction_to_date, value: '', class: 'form-control', id: 'transaction_to_date' %>
+  <div class="form-group mb-3">
+    <%= form.label :transaction_to_date, "To Date", class: 'form-label text-white' %>
+    <%= form.datetime_local_field :transaction_to_date, value: '', class: 'form-control light-white', id: 'transaction_to_date' %>
   </div>
 
-  <%= form.submit 'Send Request', class: 'btn btn-primary mt-3', id: 'submit_button' %>
-  <%#= form.submit 'Send Request', class: 'btn btn-primary mt-3', id: 'submit_button', disabled: @job_pending %>
+  <%= form.submit 'Send Request', class: 'btn btn-primary btn-lg btn-block mt-3 shadow-sm', id: 'submit_button' %>
 <% end %>
 
-<%# if @job_pending %>
-  <%# <div id="loading-indicator" class="mt-3"> %>
-    <%# <h5>Data Fetching, please wait...</h5> %>
-    <%#= image_tag 'loader.gif', alt: 'Loading...' %>
-  <%# </div> %>
-<%# end %>
 
-<%= link_to "View Report", download_report_transactions_path, class: "btn btn-primary" %>
-<br>
-<%= link_to 'View Doctor List', doctorlists_path, class: 'btn btn-primary mt-3' %>
-<br>
-<%= link_to 'View Denial Codes', denialcodelists_path, class: 'btn btn-primary' %>
-<br>
-<%= link_to 'Branches', branches_path, class: 'btn btn-primary' %>
 
-<!-- Popup for date validation -->
-<div id="date-warning-popup" style="display:none; background-color: yellow; padding: 20px; margin-top: 10px;">
-  <strong>Warning!</strong> The date range exceeds 100 days. Please adjust the dates.
-</div>
-
-<style>
-  #loading-indicator {
-    text-align: center;
-    margin-top: 20px;
-  }
-  #loading-indicator img {
-    width: 50px;
-    height: 50px;
-  }
-</style>
 
 <script>
-  document.addEventListener("DOMContentLoaded", function() {
-    const form = document.getElementById('transaction_form');
-    const fromDateInput = document.getElementById('transaction_from_date');
-    const toDateInput = document.getElementById('transaction_to_date');
-    const warningPopup = document.getElementById('date-warning-popup');
+document.addEventListener("DOMContentLoaded", function() {
+  const form = document.getElementById('transaction_form');
+  const fromDateInput = document.getElementById('transaction_from_date');
+  const toDateInput = document.getElementById('transaction_to_date');
+  const loadingIndicator = document.getElementById('loading-indicator'); // Optional: Hide/show if needed
 
-    form.addEventListener('submit', function(event) {
-      const fromDate = new Date(fromDateInput.value);
-      const toDate = new Date(toDateInput.value);
-      
-      const diffTime = Math.abs(toDate - fromDate);
-      const diffDays = diffTime / (1000 * 3600 * 24);
+  form.addEventListener('submit', function(event) {
+    const fromDate = new Date(fromDateInput.value);
+    const toDate = new Date(toDateInput.value);
+    const diffTime = Math.abs(toDate - fromDate);
+    const diffDays = diffTime / (1000 * 3600 * 24);
 
-      if (diffDays > 100) {
-        event.preventDefault(); // Prevent form submission
-        warningPopup.style.display = 'block'; // Show warning popup
-      } else {
-        warningPopup.style.display = 'none'; // Hide warning popup
+    if (diffDays > 100) {
+      event.preventDefault(); // Prevent form submission
+      showFlashAlert("Warning: The date range exceeds 100 days. Please adjust the dates."); // Show custom alert
+      if (loadingIndicator) {
+        loadingIndicator.style.display = 'none'; // Optional: Hide loading indicator if present
       }
-    });
+    }
   });
-</script>
 
+  function showFlashAlert(message) {
+    // Create the alert div
+    const alertDiv = document.createElement('div');
+    alertDiv.className = 'flash-alert';
+    alertDiv.textContent = message;
+
+    // Append the alert to the body or a specific container
+    document.body.appendChild(alertDiv);
+
+    // Display the alert
+    $(alertDiv).fadeIn();
+
+    // Automatically remove the alert after 5 seconds
+    setTimeout(function() {
+      $(alertDiv).fadeOut(function() {
+        alertDiv.remove();
+      });
+    }, 5000);
+  }
+});
+
+
+</script>

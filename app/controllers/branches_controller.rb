@@ -2,7 +2,9 @@ class BranchesController < ApplicationController
   before_action :set_branch, only: %i[show edit update destroy]
 
   def index
-    @branches = Branch.all
+  @branches = Branch.page(params[:page])
+  # @branches = Branch.all
+  @branch = Branch.new
   end
 
   def show
@@ -14,7 +16,11 @@ class BranchesController < ApplicationController
 
   def create
     @branch = Branch.new(branch_params)
-    if @branch.save
+
+    # Check if a branch with the same username, login, or clinical_id exists
+    if Branch.exists?(username: @branch.username) || Branch.exists?(login: @branch.login) || Branch.exists?(clinical_id: @branch.clinical_id)
+      return render_notification("A branch with this username, login, or clinical ID already exists.")
+    elsif @branch.save
       redirect_to branches_path, notice: 'Branch was successfully created.'
     else
       render :new, status: :unprocessable_entity
@@ -22,6 +28,7 @@ class BranchesController < ApplicationController
   end
 
   def edit
+      @branch = Branch.find(params[:id])
   end
 
   def update
@@ -38,6 +45,20 @@ class BranchesController < ApplicationController
   end
 
   private
+
+  def render_notification(message, type: :notice)
+    flash[type] = message
+    respond_to do |format|
+      format.html { redirect_to branches_path } 
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.append(
+          :notifications, 
+          partial: "layouts/flash_notifications", 
+          locals: { message: message, type: type }
+        )
+      end
+    end
+  end
 
   def set_branch
     @branch = Branch.find(params[:id])

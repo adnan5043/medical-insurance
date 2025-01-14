@@ -2,7 +2,9 @@ class DoctorlistsController < ApplicationController
   before_action :set_doctorlist, only: %i[show edit update destroy]
 
   def index
-    @doctorlists = Doctorlist.all
+    @doctorlists = Doctorlist.page(params[:page])
+    # @doctorlists = Doctorlist.all
+    @doctorlist = Doctorlist.new
   end
 
   def show

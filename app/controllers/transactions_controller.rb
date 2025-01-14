@@ -93,8 +93,18 @@ class TransactionsController < ApplicationController
     )
   end
 
-  def render_notification(message)
-    render turbo_stream: turbo_stream.append(:notifications, message)
+  def render_notification(message, type: :notice)
+    flash[type] = message
+    respond_to do |format|
+      format.html { redirect_to root_path } # Adjust to redirect back or handle however needed
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.append(
+          :notifications, 
+          partial: "layouts/flash_notifications", 
+          locals: { message: message, type: type }
+        )
+      end
+    end
   end
 end
   

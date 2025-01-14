@@ -1,27 +1,96 @@
-<h1>Doctor's List</h1>
-<%= link_to 'Create New Doctor', new_doctorlist_path, class: 'btn btn-primary' %> |
-<%= link_to 'Back to home', root_path, class: 'btn btn-secondary' %>
-<table>
-  <thead>
-    <tr>
-      <th>#</th> 
-      <th>Doctor's Name</th>
-      <th>License Number</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @doctorlists.each_with_index do |doctorlist, index| %>
-      <tr>
-        <td><%= index + 1 %></td> 
-        <td><%= doctorlist.doctor_name %></td>
-        <td><%= doctorlist.activity_clinician %></td>
-        <td>
-          <%#= link_to 'Show', doctorlist %> 
-          <%#= link_to 'Edit', edit_doctorlist_path(doctorlist) %> 
-          <%= button_to 'Delete', doctorlist, method: :delete, data: { confirm: 'Are you sure?' } %>
-        </td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
+<div class="card">
+  <div class="card-header">
+    <h4 class="card-title">Doctor's List</h4>
+  </div>
+
+  <div class="card-body">
+    <!-- Button to trigger the modal for new doctor -->
+    <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#add-doctor-modal">
+       New Doctor
+    </button>
+
+    <div class="table-responsive">
+      <table class="table table-striped custom-table table-hover table-checkable order-column valign-middle">
+        <thead class="text-primary">
+          <tr>
+            <th>#</th>
+            <th>Doctor's Name</th>
+            <th>License Number</th>
+            <th class="text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @doctorlists.each_with_index do |doctorlist, index| %>
+            <tr>
+              <td><%= (index + 1) + (@doctorlists.current_page - 1) * @doctorlists.limit_value %></td>
+              <td><%= doctorlist.doctor_name %></td>
+              <td><%= doctorlist.activity_clinician %></td>
+              <td class="text-center">
+                <div class="d-flex justify-content-center">
+                  <%= button_to doctorlist, method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-link text-danger p-0" do %>
+                    <i class="fas fa-trash-alt fa-lg"></i>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+      <!-- Pagination -->
+      <div class="d-flex justify-content-center mt-3">
+        <%= paginate @doctorlists, theme: 'bootstrap4' %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for creating a new doctor -->
+<div class="modal fade" id="add-doctor-modal" tabindex="-1" role="dialog" aria-labelledby="addDoctorModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content bg-dark">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addDoctorModalLabel">Create New Doctor</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div id="modal-body-content">
+        <%= form_with(model: @doctorlist, local: true) do |form| %>
+          <% if form.object.errors.any? %>
+            <div id="error_explanation" class="alert alert-danger">
+              <h5><%= pluralize(form.object.errors.count, "error") %> prohibited this doctor from being saved:</h5>
+              <ul>
+                <% form.object.errors.full_messages.each do |message| %>
+                  <li><%= message %></li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+
+          <div class="modal-body">
+            <div class="form text-white-50 form-fields">
+              <div class="form-row">
+                <div class="form-group col-md-12">
+                  <%= form.label :doctor_name %>
+                  <%= form.text_field :doctor_name, class: "form-control", required: true %>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group col-md-12">
+                  <%= form.label :activity_clinician, "License Number" %>
+                  <%= form.text_field :activity_clinician, class: "form-control", required: true %>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <%= form.submit 'Save', class: 'btn btn-fill btn-info' %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

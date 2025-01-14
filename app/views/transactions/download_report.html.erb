@@ -1,12 +1,13 @@
-<h1>Download report</h1>
-<%= link_to 'Back to home', root_path, class: 'btn btn-secondary' %>
+<h2 class="mt-4 text-center text-primary">Download Report</h2>
 
-<%= form_with url: download_report_transactions_path(format: :xlsx), method: :get, local: true do |f| %>
-  <div>
-    <%= f.label :username, "Username" %>
-    <%= f.select :username, Branch.pluck(:username, :username), { prompt: "Select Username" }, class: "form-control" %>
+<%= form_with url: download_report_transactions_path(format: :xlsx), method: :get, id: 'download_report_form', html: { class: 'shadow-lg p-4 rounded bg-dark mt-3' } do |form| %>
+  <div class="form-group mb-3">
+    <%= form.label :username, "Username", class: 'form-label text-white' %>
+    <%= form.collection_select :username, Branch.all, :username, :username, { prompt: "Select a Username" }, class: 'form-control', id: 'username_select' %>
   </div>
-  <div>
-    <%= f.submit "Download report", class: "btn btn-primary" %>
+
+  <div class="d-flex justify-content-between mt-3">
+    <%= form.submit "Download Report", class: "btn btn-primary btn-lg shadow-sm px-4" %>
+    <%= link_to "Cancel", root_path, class: "btn btn-secondary btn-lg shadow-sm px-4" %>
   </div>
 <% end %>

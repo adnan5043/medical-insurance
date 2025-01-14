@@ -2,7 +2,10 @@ class DenialcodelistsController < ApplicationController
   before_action :set_denialcodelist, only: [ :edit, :update, :destroy]
 
   def index
-    @denialcodelists = Denialcodelist.all
+    @denialcodelists = Denialcodelist.page(params[:page])
+    # @denialcodelists = Denialcodelist.all
+    @denialcodelist = Denialcodelist.new
+
   end
 
   def new

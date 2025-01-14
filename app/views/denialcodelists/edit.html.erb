@@ -1,30 +1,38 @@
-<h1>Edit Denial Code</h1>
-
-<%= form_with(model: @denialcodelist, local: true) do |form| %>
-  <% if @denialcodelist.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@denialcodelist.errors.count, "error") %> prohibited this denialcodelist from being saved:</h2>
-      <ul>
-        <% @denialcodelist.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
-        <% end %>
-      </ul>
+<div class="d-flex justify-content-center align-items-start min-vh-100">
+  <div class="card" style="max-width: 600px; width: 100%; padding: 15px;">
+    <div class="card-header text-center">
+      <h4 class="card-title">Edit Denial Code</h4>
     </div>
-  <% end %>
+    <div class="card-body">
+      <%= form_with(model: @denialcodelist, local: true) do |form| %>
+        <% if @denialcodelist.errors.any? %>
+          <div id="error_explanation" class="alert alert-danger">
+            <h5><%= pluralize(@denialcodelist.errors.count, "error") %> prohibited this denialcodelist from being saved:</h5>
+            <ul>
+              <% @denialcodelist.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
 
-  <div class="field">
-    <%= form.label :denial_code %>
-    <%= form.text_field :denial_code %>
+        <div class="form-group">
+          <%= form.label :denial_code, class: 'form-label' %>
+          <%= form.text_field :denial_code, class: "form-control" %>
+        </div>
+
+        <div class="form-group">
+          <%= form.label :description, class: 'form-label' %>
+          <%= form.text_area :description, class: "form-control" %>
+        </div>
+
+        <div class="form-group text-center">
+          <div class="d-flex justify-content-between">
+            <%= form.submit 'Save', class: 'btn btn-primary mr-2' %>
+            <%= link_to 'Back', denialcodelists_path, class: 'btn btn-secondary' %>
+          </div>
+        </div>
+      <% end %>
+    </div>
   </div>
-
-  <div class="field">
-    <%= form.label :description %>
-    <%= form.text_area :description %>
-  </div>
-
-  <div class="actions">
-    <%= form.submit %>
-  </div>
-<% end %>
-
-<%= link_to 'Back', denialcodelists_path %>
+</div>
