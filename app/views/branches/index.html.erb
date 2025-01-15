@@ -16,7 +16,7 @@
             <th>#</th>
             <th>Username</th>
             <th>Login</th>
-            <th>Clinical ID</th>
+            <th>License Number </th>
             <th class="text-center">Actions</th>
           </tr>
         </thead>
@@ -29,9 +29,9 @@
               <td><%= branch.clinical_id %></td>
               <td class="text-center">
                 <div class="d-flex justify-content-center">
-                  <%= link_to edit_branch_path(branch), remote: true, data: { turbo_frame: 'modal' }, class: 'btn btn-link text-info p-0 mx-3' do %>
+                  <button type="button" class="btn btn-link btn-warning p-0 mx-3" data-toggle="modal" data-target="#edit-branche-modal-<%= branch.id %>">
                     <i class="fas fa-edit fa-lg"></i>
-                  <% end %>
+                  </button>
                   <%= button_to branch_path(branch), method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-link text-danger p-0" do %>
                      <i class="fas fa-trash-alt fa-lg"></i>
                   <% end %>
@@ -98,7 +98,7 @@
 
               <div class="form-row">
                 <div class="form-group col-md-12">
-                  <%= form.label :clinical_id %>
+                  <%= form.label :License_Number  %>
                   <%= form.text_field :clinical_id, placeholder: " (e.g., DHA-F-0090081)", class: "form-control" %>
                 </div>
               </div>
@@ -114,3 +114,69 @@
   </div>
 </div>
 
+<!-- Modal for editing branch -->
+<% @branches.each do |branch| %>
+  <div class="modal fade" id="edit-branche-modal-<%= branch.id %>" tabindex="-1" role="dialog" aria-labelledby="editBranchModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content bg-dark">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editBranchModalLabel">Edit Branch</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div id="modal-body-content">
+          <%= form_with(model: branch, local: true, html: { multipart: true }) do |form| %>
+            <% if form.object.errors.any? %>
+              <div id="error_explanation" class="alert alert-danger">
+                <h5><%= pluralize(form.object.errors.count, "error") %> prohibited this branch from being updated:</h5>
+                <ul>
+                  <% form.object.errors.full_messages.each do |message| %>
+                    <li><%= message %></li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+
+            <div class="modal-body">
+              <div class="form text-white-50 form-fields">
+                <div class="form-row">
+                  <div class="form-group col-md-12">
+                    <%= form.label :username %>
+                    <%= form.text_field :username, class: "form-control" %>
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group col-md-12">
+                    <%= form.label :login %>
+                    <%= form.text_field :login, class: "form-control" %>
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group col-md-12">
+                    <%= form.label :password %>
+                    <%= form.password_field :password, class: "form-control" %>
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group col-md-12">
+                    <%= form.label :License_Number %>
+                    <%= form.text_field :clinical_id, placeholder: " (e.g., DHA-F-0090081)", class: "form-control" %>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <%= form.submit 'Update', class: 'btn btn-fill btn-warning' %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

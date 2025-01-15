@@ -28,16 +28,16 @@ class BranchesController < ApplicationController
   end
 
   def edit
-      @branch = Branch.find(params[:id])
   end
 
   def update
     if @branch.update(branch_params)
       redirect_to branches_path, notice: 'Branch was successfully updated.'
     else
-      render :edit, status: :unprocessable_entity
+      redirect_to branches_path,  alert: "errors: #{@branch.errors.full_messages.join(', ')}"
     end
   end
+
 
   def destroy
     @branch.destroy
