@@ -15,7 +15,17 @@
           <tr>
             <th>#</th>
             <th>Doctor's Name</th>
-            <th>License Number</th>
+            <th>license Number</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Address</th>
+            <th>Employee Designation</th>
+            <th>Joining Date</th>
+            <th>Basic Salary</th>
+            <th>Percentage</th>
+            <th>Avatar</th>
             <th class="text-center">Actions</th>
           </tr>
         </thead>
@@ -25,8 +35,27 @@
               <td><%= (index + 1) + (@doctorlists.current_page - 1) * @doctorlists.limit_value %></td>
               <td><%= doctorlist.doctor_name %></td>
               <td><%= doctorlist.activity_clinician %></td>
+              <td><%= doctorlist.first_name %></td>
+              <td><%= doctorlist.last_name %></td>
+              <td><%= doctorlist.email %></td>
+              <td><%= doctorlist.phone %></td>
+              <td><%= doctorlist.address %></td>
+              <td><%= doctorlist.employee_designation %></td>
+              <td><%= doctorlist.joining_date %></td>
+              <td><%= number_to_currency(doctorlist.basic_salary) %></td>
+              <td><%= doctorlist.percentage %>%</td>
+              <td>
+                <% if doctorlist.avatar&.attached? %>
+                  <%= image_tag doctorlist.avatar, class: "img-thumbnail", size: "50x50" %>
+                <% else %>
+                  N/A
+                <% end %>
+              </td>
               <td class="text-center">
                 <div class="d-flex justify-content-center">
+                  <button type="button" class="btn btn-link btn-warning p-0 mx-3" data-toggle="modal" data-target="#edit-doctor-modal-<%= doctorlist.id %>">
+                    <i class="fas fa-edit fa-lg"></i>
+                  </button>
                   <%= button_to doctorlist, method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-link text-danger p-0" do %>
                     <i class="fas fa-trash-alt fa-lg"></i>
                   <% end %>
@@ -55,7 +84,7 @@
         </button>
       </div>
       <div id="modal-body-content">
-        <%= form_with(model: @doctorlist, local: true) do |form| %>
+        <%= form_with(model: @doctorlist, local: true, html: { multipart: true }) do |form| %>
           <% if form.object.errors.any? %>
             <div id="error_explanation" class="alert alert-danger">
               <h5><%= pluralize(form.object.errors.count, "error") %> prohibited this doctor from being saved:</h5>
@@ -70,16 +99,58 @@
           <div class="modal-body">
             <div class="form text-white-50 form-fields">
               <div class="form-row">
-                <div class="form-group col-md-12">
+                <!-- First Column -->
+                <div class="form-group col-md-6">
                   <%= form.label :doctor_name %>
                   <%= form.text_field :doctor_name, class: "form-control", required: true %>
+                </div>
+                <div class="form-group col-md-6">
+                  <%= form.label :activity_clinician, "Licence Number" %>
+                  <%= form.text_field :activity_clinician, class: "form-control", required: true %>
+                </div>
+                <div class="form-group col-md-6">
+                  <%= form.label :first_name %>
+                  <%= form.text_field :first_name, class: "form-control", required: true %>
+                </div>
+                <div class="form-group col-md-6">
+                  <%= form.label :last_name %>
+                  <%= form.text_field :last_name, class: "form-control", required: true %>
+                </div>
+                <div class="form-group col-md-6">
+                  <%= form.label :email %>
+                  <%= form.email_field :email, class: "form-control", required: true %>
+                </div>
+                <div class="form-group col-md-6">
+                  <%= form.label :phone %>
+                  <%= form.telephone_field :phone, class: "form-control", required: true %>
                 </div>
               </div>
 
               <div class="form-row">
-                <div class="form-group col-md-12">
-                  <%= form.label :activity_clinician, "License Number" %>
-                  <%= form.text_field :activity_clinician, class: "form-control", required: true %>
+                <!-- Second Column -->
+                <div class="form-group col-md-6">
+                  <%= form.label :address %>
+                  <%= form.text_area :address, class: "form-control", rows: 3, required: true %>
+                </div>
+                <div class="form-group col-md-6">
+                  <%= form.label :employee_designation %>
+                  <%= form.text_field :employee_designation, class: "form-control", required: true %>
+                </div>
+                <div class="form-group col-md-6">
+                  <%= form.label :joining_date %>
+                  <%= form.date_field :joining_date, class: "form-control", required: true %>
+                </div>
+                <div class="form-group col-md-6">
+                  <%= form.label :basic_salary %>
+                  <%= form.number_field :basic_salary, class: "form-control", required: true, step: 0.01 %>
+                </div>
+                <div class="form-group col-md-6">
+                  <%= form.label :percentage %>
+                  <%= form.number_field :percentage, class: "form-control", required: true, step: 0.01 %>
+                </div>
+                <div class="form-group col-md-6">
+                  <%= form.label :avatar %>
+                  <%= form.file_field :avatar, class: "form-control-file" %>
                 </div>
               </div>
             </div>
@@ -94,3 +165,96 @@
     </div>
   </div>
 </div>
+
+<!-- Modal for editing a doctor -->
+<% @doctorlists.each do |doctorlist| %>
+  <div class="modal fade" id="edit-doctor-modal-<%= doctorlist.id %>" tabindex="-1" role="dialog" aria-labelledby="editDoctorModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content bg-dark">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editDoctorModalLabel">Edit Doctor</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div id="modal-body-content">
+          <%= form_with(model: doctorlist, local: true, html: { multipart: true }) do |form| %>
+            <% if form.object.errors.any? %>
+              <div id="error_explanation" class="alert alert-danger">
+                <h5><%= pluralize(form.object.errors.count, "error") %> prohibited this doctor from being updated:</h5>
+                <ul>
+                  <% form.object.errors.full_messages.each do |message| %>
+                    <li><%= message %></li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+
+            <div class="modal-body">
+              <div class="form-row">
+                <!-- First Column -->
+                <div class="form-group col-md-6">
+                  <%= form.label :doctor_name %>
+                  <%= form.text_field :doctor_name, class: "form-control", required: true %>
+                </div>
+                <div class="form-group col-md-6">
+                  <%= form.label :activity_clinician, "Licence Number" %>
+                  <%= form.text_field :activity_clinician, class: "form-control", required: true %>
+                </div>
+                <div class="form-group col-md-6">
+                  <%= form.label :first_name %>
+                  <%= form.text_field :first_name, class: "form-control", required: true %>
+                </div>
+                <div class="form-group col-md-6">
+                  <%= form.label :last_name %>
+                  <%= form.text_field :last_name, class: "form-control", required: true %>
+                </div>
+                <div class="form-group col-md-6">
+                  <%= form.label :email %>
+                  <%= form.email_field :email, class: "form-control", required: true %>
+                </div>
+                <div class="form-group col-md-6">
+                  <%= form.label :phone %>
+                  <%= form.telephone_field :phone, class: "form-control", required: true %>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <!-- Second Column -->
+                <div class="form-group col-md-6">
+                  <%= form.label :address %>
+                  <%= form.text_area :address, class: "form-control", rows: 3, required: true %>
+                </div>
+                <div class="form-group col-md-6">
+                  <%= form.label :employee_designation %>
+                  <%= form.text_field :employee_designation, class: "form-control", required: true %>
+                </div>
+                <div class="form-group col-md-6">
+                  <%= form.label :joining_date %>
+                  <%= form.date_field :joining_date, class: "form-control", required: true %>
+                </div>
+                <div class="form-group col-md-6">
+                  <%= form.label :basic_salary %>
+                  <%= form.number_field :basic_salary, class: "form-control", required: true, step: 0.01 %>
+                </div>
+                <div class="form-group col-md-6">
+                  <%= form.label :percentage %>
+                  <%= form.number_field :percentage, class: "form-control", required: true, step: 0.01 %>
+                </div>
+                <div class="form-group col-md-6">
+                  <%= form.label :avatar %>
+                  <%= form.file_field :avatar, class: "form-control-file" %>
+                </div>
+              </div>
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <%= form.submit 'Update', class: 'btn btn-fill btn-warning' %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

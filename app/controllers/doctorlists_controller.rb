@@ -3,7 +3,6 @@ class DoctorlistsController < ApplicationController
 
   def index
     @doctorlists = Doctorlist.page(params[:page])
-    # @doctorlists = Doctorlist.all
     @doctorlist = Doctorlist.new
   end
 
@@ -17,26 +16,27 @@ class DoctorlistsController < ApplicationController
   def create
     @doctorlist = Doctorlist.new(doctorlist_params)
     if @doctorlist.save
-      redirect_to doctorlists_path, notice: 'Doctorlist was successfully created.'
+      redirect_to doctorlists_path, notice: 'Doctor_data was successfully created.'
     else
       render :new
     end
   end
 
   def edit
+    # @doctorlist is already set by before_action
   end
 
   def update
     if @doctorlist.update(doctorlist_params)
-      redirect_to @doctorlist, notice: 'Doctorlist was successfully updated.'
+      redirect_to doctorlists_path, notice: 'Doctor_data was successfully updated.'
     else
-      render :edit
+      redirect_to doctorlists_path, alert: 'There were errors updating the doctorlist.'
     end
   end
 
   def destroy
     @doctorlist.destroy
-    redirect_to doctorlists_url, notice: 'Doctorlist was successfully destroyed.'
+    redirect_to doctorlists_url, notice: 'Doctor_data was successfully destroyed.'
   end
 
   private
@@ -46,6 +46,20 @@ class DoctorlistsController < ApplicationController
   end
 
   def doctorlist_params
-    params.require(:doctorlist).permit(:doctor_name, :activity_clinician)
+    params.require(:doctorlist).permit(
+      :doctor_name, 
+      :activity_clinician, 
+      :license_number, 
+      :first_name, 
+      :last_name, 
+      :email, 
+      :phone, 
+      :address, 
+      :avatar, 
+      :employee_designation, 
+      :joining_date, 
+      :basic_salary, 
+      :percentage
+    )
   end
 end
