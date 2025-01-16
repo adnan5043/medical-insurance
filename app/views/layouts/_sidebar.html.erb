@@ -24,34 +24,19 @@
         <% end %>
       </li>
 
-      <!-- Doctor List -->
-      <li class="<%= 'active' if controller.controller_name == 'doctorlists' %>">
-        <%= link_to doctorlists_path do %>
-          <i class="fas fa-user-md"></i>
-          <p>Doctor List</p>
+      <!-- Admin (New) -->
+      <li class="<%= 'active' if controller.controller_name == 'admins' %>">
+        <%= link_to admins_path do %>
+          <i class="fas fa-user-shield"></i>
+          <p>Admin</p>
         <% end %>
       </li>
 
-      <!-- Denial Codes -->
-      <li class="<%= 'active' if controller.controller_name == 'denialcodelists' %>">
-        <%= link_to denialcodelists_path do %>
-          <i class="fas fa-file-alt"></i>
-          <p>Denial Codes</p>
-        <% end %>
-      </li>
-
-      <!-- Branches -->
-      <li class="<%= 'active' if controller.controller_name == 'branches' %>">
-        <%= link_to branches_path do %>
-          <i class="fas fa-code-branch"></i>
-          <p>Branches</p>
-        <% end %>
-      </li>
-      <!-- Manage Reception -->
-      <li class="<%= 'active' if controller.controller_name == 'manage_receptions' %>">
-        <%= link_to manage_receptions_path do %>
-          <i class="fas fa-receipt"></i>
-          <p>Manage Reception</p>
+      <!-- Add the Settings tab in the sidebar -->
+      <li class="<%= 'active' if current_page?(settings_path) %>">
+        <%= link_to settings_path do %>
+          <i class="fas fa-cogs"></i>
+          <p>Settings</p>
         <% end %>
       </li>
 

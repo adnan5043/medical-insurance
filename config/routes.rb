@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  resources :settings
+  resources :admins
   resources :manage_receptions
   resources :branches, only: [:index, :new, :create, :edit, :update, :destroy]
   devise_for :users
