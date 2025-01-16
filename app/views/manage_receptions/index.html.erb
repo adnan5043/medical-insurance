@@ -1,0 +1,218 @@
+<div class="card">
+  <div class="card-header">
+    <h4 class="card-title">Manage Reception</h4>
+  </div>
+
+  <div class="card-body">
+    <!-- Button to trigger the modal for new reception -->
+    <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#add-reception-modal">
+      New Reception
+    </button>
+
+    <div class="table-responsive">
+      <table class="table table-striped custom-table table-hover table-checkable order-column valign-middle">
+        <thead class="text-primary">
+          <tr>
+            <th>#</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Username</th>
+            <th>Phone</th>
+            <th>Address</th>
+            <th>Employee Designation</th>
+            <th>Joining Date</th>
+            <th>Avatar</th>
+            <th class="text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @manage_receptions.each_with_index do |reception, index| %>
+            <tr>
+              <td><%= (index + 1) + (@manage_receptions.current_page - 1) * @manage_receptions.limit_value %></td>
+              <td><%= reception.first_name %></td>
+              <td><%= reception.last_name %></td>
+              <td><%= reception.username %></td>
+              <td><%= reception.phone %></td>
+              <td><%= reception.address %></td>
+              <td><%= reception.employee_designation %></td>
+              <td><%= reception.joining_date %></td>
+              <td>
+                <% if reception.avatar&.attached? %>
+                  <%= image_tag reception.avatar, class: "img-thumbnail", size: "50x50" %>
+                <% else %>
+                  N/A
+                <% end %>
+              </td>
+              <td class="text-center">
+                <div class="d-flex justify-content-center">
+                  <button type="button" class="btn btn-link btn-warning p-0 mx-3" data-toggle="modal" data-target="#edit-reception-modal-<%= reception.id %>">
+                    <i class="fas fa-edit fa-lg"></i>
+                  </button>
+                  <%= button_to manage_reception_path(reception), method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-link text-danger p-0" do %>
+                    <i class="fas fa-trash-alt fa-lg"></i>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+      <!-- Pagination -->
+      <div class="d-flex justify-content-center mt-3">
+        <%= paginate @manage_receptions, theme: 'bootstrap4' %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for creating a new reception -->
+<div class="modal fade" id="add-reception-modal" tabindex="-1" role="dialog" aria-labelledby="addReceptionModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content bg-dark">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addReceptionModalLabel">Create New Reception</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div id="modal-body-content">
+        <%= form_with(model: @manage_reception, local: true, html: { multipart: true }) do |form| %>
+          <% if form.object.errors.any? %>
+            <div id="error_explanation" class="alert alert-danger">
+              <h5><%= pluralize(form.object.errors.count, "error") %> prohibited this reception from being saved:</h5>
+              <ul>
+                <% form.object.errors.full_messages.each do |message| %>
+                  <li><%= message %></li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+
+          <div class="modal-body">
+            <div class="form-row">
+              <!-- First Column -->
+              <div class="form-group col-md-6">
+                <%= form.label :first_name %>
+                <%= form.text_field :first_name, class: "form-control", required: true %>
+              </div>
+              <div class="form-group col-md-6">
+                <%= form.label :last_name %>
+                <%= form.text_field :last_name, class: "form-control", required: true %>
+              </div>
+              <div class="form-group col-md-6">
+                <%= form.label :username %>
+                <%= form.text_field :username, class: "form-control", required: true %>
+              </div>
+              <div class="form-group col-md-6">
+                <%= form.label :phone %>
+                <%= form.telephone_field :phone, class: "form-control", required: true %>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <!-- Second Column -->
+              <div class="form-group col-md-6">
+                <%= form.label :address %>
+                <%= form.text_area :address, class: "form-control", rows: 3, required: true %>
+              </div>
+              <div class="form-group col-md-6">
+                <%= form.label :employee_designation %>
+                <%= form.text_field :employee_designation, class: "form-control", required: true %>
+              </div>
+              <div class="form-group col-md-6">
+                <%= form.label :joining_date %>
+                <%= form.date_field :joining_date, class: "form-control", required: true %>
+              </div>
+              <div class="form-group col-md-6">
+                <%= form.label :avatar %>
+                <%= form.file_field :avatar, class: "form-control-file" %>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <%= form.submit 'Save', class: 'btn btn-fill btn-warning' %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modals for editing receptions -->
+<% @manage_receptions.each do |reception| %>
+  <div class="modal fade" id="edit-reception-modal-<%= reception.id %>" tabindex="-1" role="dialog" aria-labelledby="editReceptionModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content bg-dark">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editReceptionModalLabel">Edit Reception</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div id="modal-body-content">
+          <%= form_with(model: reception, local: true, html: { multipart: true }) do |form| %>
+            <% if form.object.errors.any? %>
+              <div id="error_explanation" class="alert alert-danger">
+                <h5><%= pluralize(form.object.errors.count, "error") %> prohibited this reception from being updated:</h5>
+                <ul>
+                  <% form.object.errors.full_messages.each do |message| %>
+                    <li><%= message %></li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+
+            <div class="modal-body">
+              <div class="form-row">
+                <!-- First Column -->
+                <div class="form-group col-md-6">
+                  <%= form.label :first_name %>
+                  <%= form.text_field :first_name, class: "form-control", required: true %>
+                </div>
+                <div class="form-group col-md-6">
+                  <%= form.label :last_name %>
+                  <%= form.text_field :last_name, class: "form-control", required: true %>
+                </div>
+                <div class="form-group col-md-6">
+                  <%= form.label :username %>
+                  <%= form.text_field :username, class: "form-control", required: true %>
+                </div>
+                <div class="form-group col-md-6">
+                  <%= form.label :phone %>
+                  <%= form.telephone_field :phone, class: "form-control", required: true %>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <!-- Second Column -->
+                <div class="form-group col-md-6">
+                  <%= form.label :address %>
+                  <%= form.text_area :address, class: "form-control", rows: 3, required: true %>
+                </div>
+                <div class="form-group col-md-6">
+                  <%= form.label :employee_designation %>
+                  <%= form.text_field :employee_designation, class: "form-control", required: true %>
+                </div>
+                <div class="form-group col-md-6">
+                  <%= form.label :joining_date %>
+                  <%= form.date_field :joining_date, class: "form-control", required: true %>
+                </div>
+                <div class="form-group col-md-6">
+                  <%= form.label :avatar %>
+                  <%= form.file_field :avatar, class: "form-control-file" %>
+                </div>
+              </div>
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <%= form.submit 'Update', class: 'btn btn-fill btn-warning' %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

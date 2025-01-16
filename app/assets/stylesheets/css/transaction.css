@@ -25,3 +25,8 @@
   .form-label {
     color: #ffffff; 
   }
+
+  /* Custom style to make the field labels white */
+.modal .form-group label {
+  color:rgb(155, 153, 153);
+}

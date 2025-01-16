@@ -1,0 +1,2 @@
+module ManageReceptionsHelper
+end

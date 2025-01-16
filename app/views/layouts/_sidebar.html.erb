@@ -47,6 +47,13 @@
           <p>Branches</p>
         <% end %>
       </li>
+      <!-- Manage Reception -->
+      <li class="<%= 'active' if controller.controller_name == 'manage_receptions' %>">
+        <%= link_to manage_receptions_path do %>
+          <i class="fas fa-receipt"></i>
+          <p>Manage Reception</p>
+        <% end %>
+      </li>
 
       <!-- Logout -->
       <li>
