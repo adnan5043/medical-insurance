@@ -4,7 +4,11 @@ Rails.application.routes.draw do
   resources :manage_receptions
   resources :branches, only: [:index, :new, :create, :edit, :update, :destroy]
   devise_for :users
-  resources :denialcodelists
+  resources :denialcodelists do
+    collection do
+      post :import
+    end
+  end
   resources :doctorlists
   resources :transactions, only: [:show] do
     collection do

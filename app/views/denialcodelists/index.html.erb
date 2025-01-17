@@ -4,39 +4,52 @@
   </div>
 
   <div class="card-body">
-    <!-- Button to trigger the modal for new denial code -->
+    <div class="d-flex justify-content-between">
     <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#add-denial-code-modal">
       New Denial Code
     </button>
-
+    <%= form_with url: import_denialcodelists_path, method: :post, local: true, html: { multipart: true, id: "file-upload-form" } do |f| %>
+      <div class="form-group">
+        <!-- Hidden file input -->
+        <%= f.file_field :file, id: "file-upload", class: "d-none", required: true, onchange: "submitFileForm()" %>
+        <label for="file-upload" class="btn btn-primary">
+          <i class="fas fa-upload"></i> Upload File
+        </label>
+      </div>
+    <% end %>
+    </div>
     <div class="table-responsive">
       <table class="table table-striped custom-table table-hover table-checkable order-column valign-middle">
-        <thead class="text-primary">
+       <thead class="text-primary">
+        <tr>
+          <th>#</th>
+          <th>Denial Code</th>
+          <th>Description</th>
+          <th>Effective From</th>
+          <th>Effective To</th>
+          <th class="text-center">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @denialcodelists.each_with_index do |denial, index| %>
           <tr>
-            <th>#</th>
-            <th>Denial Code</th>
-            <th>Description</th>
-            <th class="text-center">Actions</th>
+            <td><%= (index + 1) + (@denialcodelists.current_page - 1) * @denialcodelists.limit_value %></td>
+            <td><%= denial.denial_code %></td>
+            <td><%= denial.description %></td>
+            <td><%= denial.effective_from&.strftime('%Y-%m-%d') %></td>
+            <td><%= denial.effective_to&.strftime('%Y-%m-%d') %></td>
+            <td class="text-center">
+              <div class="d-flex justify-content-center">
+                <button type="button" class="btn btn-link btn-warning p-0 mx-3" data-toggle="modal" data-target="#edit-denial-code-modal-<%= denial.id %>">
+                  <i class="fas fa-edit fa-lg"></i>
+                </button>
+                <%= button_to denialcodelist_path(denial), method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-link text-danger p-0" do %>
+                  <i class="fas fa-trash-alt fa-lg"></i>
+                <% end %>
+              </div>
+            </td>
           </tr>
-        </thead>
-        <tbody>
-          <% @denialcodelists.each_with_index do |denial, index| %>
-            <tr>
-              <td><%= (index + 1) + (@denialcodelists.current_page - 1) * @denialcodelists.limit_value %></td>
-              <td><%= denial.denial_code %></td>
-              <td><%= denial.description %></td>
-              <td class="text-center">
-                <div class="d-flex justify-content-center">
-                  <%= link_to edit_denialcodelist_path(denial), class: "btn btn-link text-info p-0 mx-3" do %>
-                    <i class="fas fa-edit fa-lg"></i>
-                  <% end %>
-                  <%= button_to denialcodelist_path(denial), method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-link text-danger p-0" do %>
-                    <i class="fas fa-trash-alt fa-lg"></i>
-                  <% end %>
-                </div>
-              </td>
-            </tr>
-          <% end %>
+        <% end %>
         </tbody>
       </table>
 
@@ -88,6 +101,16 @@
               </div>
             </div>
           </div>
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <%= form.label :effective_from %>
+              <%= form.date_field :effective_from, class: "form-control" %>
+            </div>
+            <div class="form-group col-md-6">
+              <%= form.label :effective_to %>
+              <%= form.date_field :effective_to, class: "form-control" %>
+            </div>
+          </div>
 
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -98,3 +121,84 @@
     </div>
   </div>
 </div>
+
+<% @denialcodelists.each do |denial| %>
+  <div class="modal fade" id="edit-denial-code-modal-<%= denial.id %>" tabindex="-1" role="dialog" aria-labelledby="editDenialCodeModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content bg-dark">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editDenialCodeModalLabel">Edit Denial Code</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div id="modal-body-content">
+          <%= form_with(model: denial, local: true, html: { multipart: true }) do |form| %>
+            <% if form.object.errors.any? %>
+              <div id="error_explanation" class="alert alert-danger">
+                <h5><%= pluralize(form.object.errors.count, "error") %> prohibited this denial code from being updated:</h5>
+                <ul>
+                  <% form.object.errors.full_messages.each do |message| %>
+                    <li><%= message %></li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+
+            <div class="modal-body">
+              <div class="form text-white-50 form-fields">
+                <div class="form-row">
+                  <div class="form-group col-md-12">
+                    <%= form.label :denial_code %>
+                    <%= form.text_field :denial_code, class: "form-control" %>
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group col-md-12">
+                    <%= form.label :description %>
+                    <%= form.text_area :description, class: "form-control", rows: 3 %>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                <%= form.label :effective_from %>
+                <%= form.date_field :effective_from, class: "form-control", value: denial.effective_from %>
+              </div>
+              <div class="form-group col-md-6">
+                <%= form.label :effective_to %>
+                <%= form.date_field :effective_to, class: "form-control", value: denial.effective_to %>
+              </div>
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <%= form.submit 'Update', class: 'btn btn-fill btn-warning' %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+  const fileInput = document.getElementById("file-upload");
+
+  // Update the label with the file name after selecting a file
+  fileInput.addEventListener("change", function () {
+    const fileName = fileInput.files[0]?.name || "Choose file";
+    const fileLabel = document.querySelector("label[for='file-upload']");
+    fileLabel.innerHTML = `<i class="fas fa-upload"></i> ${fileName}`;
+  });
+});
+
+// Function to submit the form
+function submitFileForm() {
+  document.getElementById("file-upload-form").submit();
+}
+
+</script>
