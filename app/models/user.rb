@@ -6,4 +6,5 @@ class User < ApplicationRecord
          
   has_one_attached :avatar
   has_many :manage_reception, as: :userable, dependent: :destroy
+  has_many :doctorlists, as: :userable, dependent: :destroy
 end

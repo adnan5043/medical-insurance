@@ -15,7 +15,7 @@
           <tr>
             <th>#</th>
             <th>Doctor's Name</th>
-            <th>license Number</th>
+            <th>License Number</th>
             <th>First Name</th>
             <th>Last Name</th>
             <th>Email</th>
@@ -35,22 +35,27 @@
               <td><%= (index + 1) + (@doctorlists.current_page - 1) * @doctorlists.limit_value %></td>
               <td><%= doctorlist.doctor_name %></td>
               <td><%= doctorlist.activity_clinician %></td>
-              <td><%= doctorlist.first_name %></td>
-              <td><%= doctorlist.last_name %></td>
-              <td><%= doctorlist.email %></td>
-              <td><%= doctorlist.phone %></td>
-              <td><%= doctorlist.address %></td>
-              <td><%= doctorlist.employee_designation %></td>
-              <td><%= doctorlist.joining_date %></td>
-              <td><%= number_to_currency(doctorlist.basic_salary) %></td>
-              <td><%= doctorlist.percentage %>%</td>
-              <td>
-                <% if doctorlist.avatar&.attached? %>
-                  <%= image_tag doctorlist.avatar, class: "img-thumbnail", size: "50x50" %>
+              <% if doctorlist.userable.present? %>
+                <td><%= doctorlist.userable.first_name %></td>
+                <td><%= doctorlist.userable.last_name %></td>
+                <td><%= doctorlist.userable.email %></td>
+                <td><%= doctorlist.userable.phone %></td>
+                <td><%= doctorlist.userable.address %></td>
+                <td><%= doctorlist.userable.employee_designation %></td>
+                <td><%= doctorlist.userable.joining_date %></td>
+                <td><%= number_to_currency(doctorlist.basic_salary) %></td>
+                <td><%= doctorlist.percentage %>%</td>
+                <td>
+                <% if doctorlist.userable.avatar.attached? %>
+                  <%= image_tag doctorlist.userable.avatar, class: "img-thumbnail", size: "50x50" %>
                 <% else %>
                   N/A
                 <% end %>
               </td>
+              <% else %>
+                <td colspan="10" class="text-center text-warning"></td>
+              <% end %>
+
               <td class="text-center">
                 <div class="d-flex justify-content-center">
                   <button type="button" class="btn btn-link btn-warning p-0 mx-3" data-toggle="modal" data-target="#edit-doctor-modal-<%= doctorlist.id %>">
@@ -65,6 +70,7 @@
           <% end %>
         </tbody>
       </table>
+
       <!-- Pagination -->
       <div class="d-flex justify-content-center mt-3">
         <%= paginate @doctorlists, theme: 'bootstrap4' %>
@@ -84,81 +90,85 @@
         </button>
       </div>
       <div id="modal-body-content">
-        <%= form_with(model: @doctorlist, local: true, html: { multipart: true }) do |form| %>
-          <% if form.object.errors.any? %>
-            <div id="error_explanation" class="alert alert-danger">
-              <h5><%= pluralize(form.object.errors.count, "error") %> prohibited this doctor from being saved:</h5>
-              <ul>
-                <% form.object.errors.full_messages.each do |message| %>
-                  <li><%= message %></li>
-                <% end %>
-              </ul>
-            </div>
-          <% end %>
-
+        <%= form_with(url: doctorlists_path, local: true, html: { multipart: true }) do |form| %>
           <div class="modal-body">
             <div class="form text-white-50 form-fields">
-              <div class="form-row">
-                <!-- First Column -->
-                <div class="form-group col-md-6">
-                  <%= form.label :doctor_name %>
-                  <%= form.text_field :doctor_name, class: "form-control", required: true %>
+              <!-- Doctorlist Fields -->
+                <div class="form-row">
+                  <div class="form-group col-md-6">
+                    <%= form.label :doctor_name %>
+                    <%= form.text_field :doctor_name, class: "form-control", required: true, name: "doctorlist[doctor_name]" %>
+                  </div>
+                  <div class="form-group col-md-6">
+                    <%= form.label :activity_clinician, "License Number" %>
+                    <%= form.text_field :activity_clinician, class: "form-control", required: true, name: "doctorlist[activity_clinician]" %>
+                  </div>
                 </div>
-                <div class="form-group col-md-6">
-                  <%= form.label :activity_clinician, "Licence Number" %>
-                  <%= form.text_field :activity_clinician, class: "form-control", required: true %>
+              <!-- User Fields -->
+                <div class="form-row">
+                  <div class="form-group col-md-6">
+                    <%= form.label :first_name %>
+                    <%= form.text_field :first_name, class: "form-control", required: true, name: "user[first_name]" %>
+                  </div>
+                  <div class="form-group col-md-6">
+                    <%= form.label :last_name %>
+                    <%= form.text_field :last_name, class: "form-control", required: true, name: "user[last_name]" %>
+                  </div>
                 </div>
-                <div class="form-group col-md-6">
-                  <%= form.label :first_name %>
-                  <%= form.text_field :first_name, class: "form-control", required: true %>
+                <div class="form-row">
+                  <div class="form-group col-md-6">
+                    <%= form.label :email %>
+                    <%= form.email_field :email, class: "form-control", required: true, name: "user[email]" %>
+                  </div>
+                  <div class="form-group col-md-6">
+                    <%= form.label :phone %>
+                    <%= form.telephone_field :phone, class: "form-control", required: true, name: "user[phone]" %>
+                  </div>
                 </div>
-                <div class="form-group col-md-6">
-                  <%= form.label :last_name %>
-                  <%= form.text_field :last_name, class: "form-control", required: true %>
+                <div class="form-row">
+                  <div class="form-group col-md-6">
+                    <%= form.label :address %>
+                    <%= form.text_field :address, class: "form-control", name: "user[address]" %>
+                  </div>
+                  <div class="form-group col-md-6">
+                    <%= form.label :employee_designation %>
+                    <%= form.text_field :employee_designation, class: "form-control", name: "user[employee_designation]" %>
+                  </div>
                 </div>
-                <div class="form-group col-md-6">
-                  <%= form.label :email %>
-                  <%= form.email_field :email, class: "form-control", required: true %>
+                <div class="form-row">
+                  <div class="form-group col-md-6">
+                    <%= form.label :basic_salary %>
+                    <%= form.number_field :basic_salary, class: "form-control", required: true, name: "doctorlist[basic_salary]" %>
+                  </div>
+                  <div class="form-group col-md-6">
+                    <%= form.label :percentage %>
+                    <%= form.number_field :percentage, class: "form-control", required: true, name: "doctorlist[percentage]" %>
+                  </div>
                 </div>
-                <div class="form-group col-md-6">
-                  <%= form.label :phone %>
-                  <%= form.telephone_field :phone, class: "form-control", required: true %>
+                <div class="form-row">
+                  <div class="form-group col-md-6">
+                    <%= form.label :joining_date %>
+                    <%= form.date_field :joining_date, class: "form-control", name: "user[joining_date]" %>
+                  </div>
+                  <div class="form-group col-md-6">
+                    <%= form.label :avatar %>
+                    <%= form.file_field :avatar, class: "form-control",name: "user[avatar]"  %>
+                  </div>
                 </div>
-              </div>
-
-              <div class="form-row">
-                <!-- Second Column -->
-                <div class="form-group col-md-6">
-                  <%= form.label :address %>
-                  <%= form.text_area :address, class: "form-control", rows: 3, required: true %>
+                <div class="form-row">
+                  <div class="form-group col-md-6">
+                    <%= form.label :password %>
+                    <%= form.password_field :password, class: "form-control", required: true, name: "user[password]" %>
+                  </div>
+                  <div class="form-group col-md-6">
+                    <%= form.label :password_confirmation %>
+                    <%= form.password_field :password_confirmation, class: "form-control", required: true, name: "user[password_confirmation]" %>
+                  </div>
                 </div>
-                <div class="form-group col-md-6">
-                  <%= form.label :employee_designation %>
-                  <%= form.text_field :employee_designation, class: "form-control", required: true %>
-                </div>
-                <div class="form-group col-md-6">
-                  <%= form.label :joining_date %>
-                  <%= form.date_field :joining_date, class: "form-control", required: true %>
-                </div>
-                <div class="form-group col-md-6">
-                  <%= form.label :basic_salary %>
-                  <%= form.number_field :basic_salary, class: "form-control", required: true, step: 0.01 %>
-                </div>
-                <div class="form-group col-md-6">
-                  <%= form.label :percentage %>
-                  <%= form.number_field :percentage, class: "form-control", required: true, step: 0.01 %>
-                </div>
-                <div class="form-group col-md-6">
-                  <%= form.label :avatar %>
-                  <%= form.file_field :avatar, class: "form-control-file" %>
-                </div>
-              </div>
             </div>
           </div>
-
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <%= form.submit 'Save', class: 'btn btn-fill btn-info' %>
+            <%= form.submit "Save", class: "btn btn-primary" %>
           </div>
         <% end %>
       </div>
@@ -179,78 +189,90 @@
         </div>
         <div id="modal-body-content">
           <%= form_with(model: doctorlist, local: true, html: { multipart: true }) do |form| %>
-            <% if form.object.errors.any? %>
-              <div id="error_explanation" class="alert alert-danger">
-                <h5><%= pluralize(form.object.errors.count, "error") %> prohibited this doctor from being updated:</h5>
-                <ul>
-                  <% form.object.errors.full_messages.each do |message| %>
-                    <li><%= message %></li>
-                  <% end %>
-                </ul>
-              </div>
-            <% end %>
-
             <div class="modal-body">
+              <% if form.object.errors.any? %>
+                <div id="error_explanation" class="alert alert-danger">
+                  <h5><%= pluralize(form.object.errors.count, "error") %> prohibited this doctor from being saved:</h5>
+                  <ul>
+                    <% form.object.errors.full_messages.each do |message| %>
+                      <li><%= message %></li>
+                    <% end %>
+                  </ul>
+                </div>
+              <% end %>
+
               <div class="form-row">
-                <!-- First Column -->
+                <!-- Doctor Details Column -->
                 <div class="form-group col-md-6">
                   <%= form.label :doctor_name %>
                   <%= form.text_field :doctor_name, class: "form-control", required: true %>
                 </div>
                 <div class="form-group col-md-6">
-                  <%= form.label :activity_clinician, "Licence Number" %>
+                  <%= form.label :activity_clinician, "License Number" %>
                   <%= form.text_field :activity_clinician, class: "form-control", required: true %>
                 </div>
-                <div class="form-group col-md-6">
-                  <%= form.label :first_name %>
-                  <%= form.text_field :first_name, class: "form-control", required: true %>
-                </div>
-                <div class="form-group col-md-6">
-                  <%= form.label :last_name %>
-                  <%= form.text_field :last_name, class: "form-control", required: true %>
-                </div>
-                <div class="form-group col-md-6">
-                  <%= form.label :email %>
-                  <%= form.email_field :email, class: "form-control", required: true %>
-                </div>
-                <div class="form-group col-md-6">
-                  <%= form.label :phone %>
-                  <%= form.telephone_field :phone, class: "form-control", required: true %>
-                </div>
               </div>
-
+              
               <div class="form-row">
-                <!-- Second Column -->
-                <div class="form-group col-md-6">
-                  <%= form.label :address %>
-                  <%= form.text_area :address, class: "form-control", rows: 3, required: true %>
-                </div>
-                <div class="form-group col-md-6">
-                  <%= form.label :employee_designation %>
-                  <%= form.text_field :employee_designation, class: "form-control", required: true %>
-                </div>
-                <div class="form-group col-md-6">
-                  <%= form.label :joining_date %>
-                  <%= form.date_field :joining_date, class: "form-control", required: true %>
-                </div>
-                <div class="form-group col-md-6">
-                  <%= form.label :basic_salary %>
-                  <%= form.number_field :basic_salary, class: "form-control", required: true, step: 0.01 %>
-                </div>
-                <div class="form-group col-md-6">
-                  <%= form.label :percentage %>
-                  <%= form.number_field :percentage, class: "form-control", required: true, step: 0.01 %>
-                </div>
-                <div class="form-group col-md-6">
-                  <%= form.label :avatar %>
-                  <%= form.file_field :avatar, class: "form-control-file" %>
-                </div>
+                <!-- User Details -->
+                <% if doctorlist.userable.present? %>
+                  <%= form.fields_for :userable, doctorlist.userable do |user_form| %>
+                    <div class="form-group col-md-6">
+                      <%= user_form.label :first_name %>
+                      <%= user_form.text_field :first_name, class: "form-control", required: true %>
+                    </div>
+                    <div class="form-group col-md-6">
+                      <%= user_form.label :last_name %>
+                      <%= user_form.text_field :last_name, class: "form-control", required: true %>
+                    </div>
+                    <div class="form-group col-md-6">
+                      <%= user_form.label :email %>
+                      <%= user_form.email_field :email, class: "form-control", required: true %>
+                    </div>
+                    <div class="form-group col-md-6">
+                      <%= user_form.label :phone %>
+                      <%= user_form.telephone_field :phone, class: "form-control", required: true %>
+                    </div>
+                    <div class="form-group col-md-6">
+                      <%= user_form.label :address %>
+                      <%= user_form.text_field :address, class: "form-control" %>
+                    </div>
+                    <div class="form-group col-md-6">
+                      <%= user_form.label :employee_designation %>
+                      <%= user_form.text_field :employee_designation, class: "form-control" %>
+                    </div>
+                    <div class="form-group col-md-6">
+                      <%= form.label :basic_salary %>
+                      <%= form.number_field :basic_salary, class: "form-control", required: true %>
+                    </div>
+                    <div class="form-group col-md-6">
+                      <%= form.label :percentage %>
+                      <%= form.number_field :percentage, class: "form-control", required: true %>
+                    </div>
+                    <div class="form-group col-md-6">
+                      <%= user_form.label :joining_date %>
+                      <%= user_form.date_field :joining_date, class: "form-control" %>
+                    </div>
+                    <div class="form-group col-md-6">
+                      <%= user_form.label :avatar %>
+                      <%= user_form.file_field :avatar, class: "form-control" %>
+                    </div>
+                    <div class="form-group col-md-6">
+                      <%= form.label :password %>
+                      <%= form.password_field :password, required: true, class: "form-control" %>
+                    </div>
+                    <div class="form-group col-md-6">
+                      <%= form.label :password_confirmation %>
+                      <%= form.password_field :password_confirmation, required: true, class: "form-control" %>
+                    </div>
+                  <% end %>
+                <% else %>
+                  <div class="text-warning"></div>
+                <% end %>
               </div>
             </div>
-
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-              <%= form.submit 'Update', class: 'btn btn-fill btn-warning' %>
+              <%= form.submit "Save Changes", class: "btn btn-primary" %>
             </div>
           <% end %>
         </div>
@@ -258,3 +280,4 @@
     </div>
   </div>
 <% end %>
+
