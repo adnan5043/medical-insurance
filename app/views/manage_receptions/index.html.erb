@@ -16,7 +16,7 @@
             <th>#</th>
             <th>First Name</th>
             <th>Last Name</th>
-            <th>Username</th>
+            <th>email</th>
             <th>Phone</th>
             <th>Address</th>
             <th>Employee Designation</th>
@@ -29,16 +29,16 @@
           <% @manage_receptions.each_with_index do |reception, index| %>
             <tr>
               <td><%= (index + 1) + (@manage_receptions.current_page - 1) * @manage_receptions.limit_value %></td>
-              <td><%= reception.first_name %></td>
-              <td><%= reception.last_name %></td>
-              <td><%= reception.username %></td>
-              <td><%= reception.phone %></td>
-              <td><%= reception.address %></td>
-              <td><%= reception.employee_designation %></td>
-              <td><%= reception.joining_date %></td>
+              <td><%= reception.userable.first_name %></td>
+              <td><%= reception.userable.last_name %></td>
+              <td><%= reception.userable.email %></td>
+              <td><%= reception.userable.phone %></td>
+              <td><%= reception.userable.address %></td>
+              <td><%= reception.userable.employee_designation %></td>
+              <td><%= reception.userable.joining_date %></td>
               <td>
-                <% if reception.avatar&.attached? %>
-                  <%= image_tag reception.avatar, class: "img-thumbnail", size: "50x50" %>
+                <% if reception.userable.avatar.attached? %>
+                  <%= image_tag reception.userable.avatar, class: "img-thumbnail", size: "50x50" %>
                 <% else %>
                   N/A
                 <% end %>
@@ -76,63 +76,64 @@
         </button>
       </div>
       <div id="modal-body-content">
-        <%= form_with(model: @manage_reception, local: true, html: { multipart: true }) do |form| %>
-          <% if form.object.errors.any? %>
-            <div id="error_explanation" class="alert alert-danger">
-              <h5><%= pluralize(form.object.errors.count, "error") %> prohibited this reception from being saved:</h5>
-              <ul>
-                <% form.object.errors.full_messages.each do |message| %>
-                  <li><%= message %></li>
-                <% end %>
-              </ul>
-            </div>
-          <% end %>
-
+          <%= form_with(model: @user, url: manage_receptions_path, local: true, html: { multipart: true }) do |form| %>
           <div class="modal-body">
             <div class="form-row">
-              <!-- First Column -->
+              <!-- Form fields for user creation -->
               <div class="form-group col-md-6">
                 <%= form.label :first_name %>
                 <%= form.text_field :first_name, class: "form-control", required: true %>
               </div>
+
               <div class="form-group col-md-6">
                 <%= form.label :last_name %>
                 <%= form.text_field :last_name, class: "form-control", required: true %>
               </div>
+
               <div class="form-group col-md-6">
-                <%= form.label :username %>
-                <%= form.text_field :username, class: "form-control", required: true %>
+                <%= form.label :email %>
+                <%= form.email_field :email, class: "form-control", required: true %>
               </div>
+
               <div class="form-group col-md-6">
                 <%= form.label :phone %>
                 <%= form.telephone_field :phone, class: "form-control", required: true %>
               </div>
-            </div>
 
-            <div class="form-row">
-              <!-- Second Column -->
               <div class="form-group col-md-6">
                 <%= form.label :address %>
-                <%= form.text_area :address, class: "form-control", rows: 3, required: true %>
+                <%= form.text_area :address, class: "form-control", required: true %>
               </div>
+
               <div class="form-group col-md-6">
                 <%= form.label :employee_designation %>
-                <%= form.text_field :employee_designation, class: "form-control", required: true %>
+                <%= form.text_field :employee_designation, class: "form-control" %>
               </div>
+
               <div class="form-group col-md-6">
                 <%= form.label :joining_date %>
-                <%= form.date_field :joining_date, class: "form-control", required: true %>
+                <%= form.date_field :joining_date, class: "form-control" %>
               </div>
+
               <div class="form-group col-md-6">
                 <%= form.label :avatar %>
-                <%= form.file_field :avatar, class: "form-control-file" %>
+                <%= form.file_field :avatar, class: "form-control" %>
+              </div>
+              <div class="form-group col-md-6">
+                <%= form.label :password %>
+                <%= form.password_field :password, class: "form-control", required: true %>
+              </div>
+
+              <div class="form-group col-md-6">
+                <%= form.label :password_confirmation %>
+                <%= form.password_field :password_confirmation, class: "form-control", required: true %>
               </div>
             </div>
           </div>
 
           <div class="modal-footer">
+            <%= form.submit "Save", class: "btn btn-primary" %>
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <%= form.submit 'Save', class: 'btn btn-fill btn-warning' %>
           </div>
         <% end %>
       </div>
@@ -140,7 +141,6 @@
   </div>
 </div>
 
-<!-- Modals for editing receptions -->
 <% @manage_receptions.each do |reception| %>
   <div class="modal fade" id="edit-reception-modal-<%= reception.id %>" tabindex="-1" role="dialog" aria-labelledby="editReceptionModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -152,65 +152,68 @@
           </button>
         </div>
         <div id="modal-body-content">
-          <%= form_with(model: reception, local: true, html: { multipart: true }) do |form| %>
-            <% if form.object.errors.any? %>
-              <div id="error_explanation" class="alert alert-danger">
-                <h5><%= pluralize(form.object.errors.count, "error") %> prohibited this reception from being updated:</h5>
-                <ul>
-                  <% form.object.errors.full_messages.each do |message| %>
-                    <li><%= message %></li>
-                  <% end %>
-                </ul>
-              </div>
-            <% end %>
-
+        <%= form_with(model: reception, local: true, html: { multipart: true }) do |form| %>
+          <%= form.fields_for :user do |user_form| %>
             <div class="modal-body">
               <div class="form-row">
-                <!-- First Column -->
-                <div class="form-group col-md-6">
-                  <%= form.label :first_name %>
-                  <%= form.text_field :first_name, class: "form-control", required: true %>
-                </div>
-                <div class="form-group col-md-6">
-                  <%= form.label :last_name %>
-                  <%= form.text_field :last_name, class: "form-control", required: true %>
-                </div>
-                <div class="form-group col-md-6">
-                  <%= form.label :username %>
-                  <%= form.text_field :username, class: "form-control", required: true %>
-                </div>
-                <div class="form-group col-md-6">
-                  <%= form.label :phone %>
-                  <%= form.telephone_field :phone, class: "form-control", required: true %>
-                </div>
+                <!-- Form fields for user -->
+               <div class="form-group col-md-6">
+                <%= user_form.label :first_name %>
+                <%= user_form.text_field :first_name, class: "form-control", value: reception.userable.first_name, required: true %>
               </div>
 
-              <div class="form-row">
-                <!-- Second Column -->
-                <div class="form-group col-md-6">
-                  <%= form.label :address %>
-                  <%= form.text_area :address, class: "form-control", rows: 3, required: true %>
-                </div>
-                <div class="form-group col-md-6">
-                  <%= form.label :employee_designation %>
-                  <%= form.text_field :employee_designation, class: "form-control", required: true %>
-                </div>
-                <div class="form-group col-md-6">
-                  <%= form.label :joining_date %>
-                  <%= form.date_field :joining_date, class: "form-control", required: true %>
-                </div>
-                <div class="form-group col-md-6">
-                  <%= form.label :avatar %>
-                  <%= form.file_field :avatar, class: "form-control-file" %>
-                </div>
+              <div class="form-group col-md-6">
+                <%= user_form.label :last_name %>
+                <%= user_form.text_field :last_name, class: "form-control", value: reception.userable.last_name, required: true %>
               </div>
-            </div>
 
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-              <%= form.submit 'Update', class: 'btn btn-fill btn-warning' %>
+              <div class="form-group col-md-6">
+                <%= user_form.label :email %>
+                <%= user_form.email_field :email, class: "form-control", value: reception.userable.email, required: true %>
+              </div>
+
+              <div class="form-group col-md-6">
+                <%= user_form.label :phone %>
+                <%= user_form.telephone_field :phone, class: "form-control", value: reception.userable.phone, required: true %>
+              </div>
+
+              <div class="form-group col-md-6">
+                <%= user_form.label :address %>
+                <%= user_form.text_area :address, class: "form-control", value: reception.userable.address, required: true %>
+              </div>
+
+              <div class="form-group col-md-6">
+                <%= user_form.label :employee_designation %>
+                <%= user_form.text_field :employee_designation, class: "form-control", value: reception.userable.employee_designation %>
+              </div>
+
+              <div class="form-group col-md-6">
+                <%= user_form.label :joining_date %>
+                <%= user_form.date_field :joining_date, class: "form-control", value: reception.userable.joining_date %>
+              </div>
+
+              <div class="form-group col-md-6">
+                <%= user_form.label :avatar %>
+                <%= user_form.file_field :avatar, class: "form-control" %>
+              </div>
+              
+              <div class="form-group col-md-6">
+                <%= user_form.label :password %>
+                <%= user_form.password_field :password, class: "form-control", required: true %>
+              </div>
+
+              <div class="form-group col-md-6">
+                <%= user_form.label :password_confirmation %>
+                <%= user_form.password_field :password_confirmation, class: "form-control", required: true %>
+              </div>
+
+              </div>
+              <!-- other fields as needed -->
             </div>
           <% end %>
+          <%= form.submit "Save", class: "btn btn-primary" %>
+        <% end %>
+
         </div>
       </div>
     </div>
