@@ -8,37 +8,45 @@
     <% end %>
 
     <ul class="nav">
-      <!-- Home -->
-      <li class="<%= 'active' if current_page?(root_path) %>">
-        <%= link_to root_path do %>
-          <i class="fas fa-cogs"></i>
-          <p>API Request</p>
-        <% end %>
-      </li>
+      <!-- API Request -->
+      <% if sidebar_permission?("API Request") %>
+        <li class="<%= 'active' if current_page?(root_path) %>">
+          <%= link_to root_path do %>
+            <i class="fas fa-cogs"></i>
+            <p>API Request</p>
+          <% end %>
+        </li>
+      <% end %>
 
-      <!-- Transactions -->
-      <li class="<%= 'active' if current_page?(download_report_transactions_path) %>">
-        <%= link_to download_report_transactions_path do %>
-          <i class="fas fa-file-download"></i>
-          <p>Report</p>
-        <% end %>
-      </li>
+      <!-- Report -->
+      <% if sidebar_permission?("Report") %>
+        <li class="<%= 'active' if current_page?(download_report_transactions_path) %>">
+          <%= link_to download_report_transactions_path do %>
+            <i class="fas fa-file-download"></i>
+            <p>Report</p>
+          <% end %>
+        </li>
+      <% end %>
 
-      <!-- Admin (New) -->
-      <li class="<%= 'active' if controller.controller_name == 'admins' %>">
-        <%= link_to admins_path do %>
-          <i class="fas fa-user-shield"></i>
-          <p>Admin</p>
-        <% end %>
-      </li>
+      <!-- Admin -->
+      <% if sidebar_permission?("Admin") %>
+        <li class="<%= 'active' if controller.controller_name == 'admins' %>">
+          <%= link_to admins_path do %>
+            <i class="fas fa-user-shield"></i>
+            <p>Admin</p>
+          <% end %>
+        </li>
+      <% end %>
 
-      <!-- Add the Settings tab in the sidebar -->
-      <li class="<%= 'active' if current_page?(settings_path) %>">
-        <%= link_to settings_path do %>
-          <i class="fas fa-cogs"></i>
-          <p>Settings</p>
-        <% end %>
-      </li>
+      <!-- Settings -->
+      <% if sidebar_permission?("Settings") %>
+        <li class="<%= 'active' if current_page?(settings_path) %>">
+          <%= link_to settings_path do %>
+            <i class="fas fa-cogs"></i>
+            <p>Settings</p>
+          <% end %>
+        </li>
+      <% end %>
 
       <!-- Logout -->
       <li>
