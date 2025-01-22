@@ -18,6 +18,7 @@ class DoctorlistsController < ApplicationController
   def create
     ActiveRecord::Base.transaction do
       @user = User.new(user_params)
+      @user.user_type = "Doctor" 
       @doctorlist = Doctorlist.new(doctorlist_params)
       @doctorlist.userable = @user 
 

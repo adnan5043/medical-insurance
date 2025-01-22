@@ -17,6 +17,7 @@ class ManageReceptionsController < ApplicationController
   def create
     ActiveRecord::Base.transaction do
       @user = User.new(user_params) 
+      @user.user_type = "Reception" 
       @manage_reception = ManageReception.new
 
       if @user.save
