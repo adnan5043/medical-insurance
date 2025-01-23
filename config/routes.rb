@@ -1,4 +1,10 @@
 Rails.application.routes.draw do
+  resources :patients do
+    member do
+      patch :check_in
+      patch :check_out
+    end
+  end
   resources :settings
   resources :admins
   resources :manage_receptions

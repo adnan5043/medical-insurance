@@ -31,6 +31,8 @@ class ApplicationController < ActionController::Base
                           "Admin"
                         when settings_path
                           "Settings"
+                        when patients_path
+                          "Patient"
                         else
                           nil
                         end

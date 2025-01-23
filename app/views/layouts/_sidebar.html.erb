@@ -28,6 +28,14 @@
         </li>
       <% end %>
 
+      <% if sidebar_permission?("Patient") %>
+        <li class="<%= 'active' if current_page?(patients_path) %>">
+          <%= link_to patients_path do %>
+            <i class="fas fa-users"></i>
+            <p>Patient</p>
+          <% end %>
+        </li>
+      <% end %>
       <!-- Admin -->
       <% if sidebar_permission?("Admin") %>
         <li class="<%= 'active' if controller.controller_name == 'admins' %>">

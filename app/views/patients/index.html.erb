@@ -1,0 +1,264 @@
+<div class="card">
+  <div class="card-header">
+    <h4 class="card-title">Patients</h4>
+  </div>
+
+  <div class="card-body">
+    <!-- Button to trigger the modal -->
+    <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#add-patient-modal">
+      New Patient
+    </button>
+
+    <div class="table-responsive">
+      <table class="table table-striped custom-table table-hover table-checkable order-column valign-middle">
+        <thead class="text-primary">
+          <tr>
+            <th>#</th>
+            <th>Patient Name</th>
+            <th>Phone No</th>
+            <th>Address</th>
+            <th>Note</th>
+            <th>Insurance Type</th>
+            <th>Patient File No</th>
+            <th>Emirate ID No</th>
+            <th>Insurance No</th>
+            <th>Status</th>
+            <th>Check-In</th>
+            <th>Check-Out</th>
+            <th class="text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @patients.each_with_index do |patient, index| %>
+            <tr>
+              <td><%= index + 1 %></td>
+              <td><%= patient.name %></td>
+              <td><%= patient.phone_no %></td>
+              <td><%= patient.address %></td>
+              <td><%= patient.note %></td>
+              <td><%= patient.insurance_type %></td>
+              <td><%= patient.patient_file_no %></td>
+              <td><%= patient.emirate_id_no %></td>
+              <td><%= patient.insurance_no %></td>
+              <td><%= patient.status %></td>
+              <td class="text-center">
+                <div class="d-flex justify-content-center">
+                  <% if patient.check_in.blank? %>
+                    <%= button_to check_in_patient_path(patient), method: :patch, class: "btn btn-link text-success p-0", data: { confirm: 'Check-in this patient?' } do %>
+                      <i class="fas fa-user-check fa-lg"></i> <!-- Relevant icon for Check-in -->
+                    <% end %>
+                  <% else %>
+                    <%= patient.check_in.strftime('%d-%m-%Y %H:%M') %>
+                  <% end %>
+                </div>
+              </td>
+
+              <td class="text-center">
+                <div class="d-flex justify-content-center">
+                  <% if patient.check_out.blank? %>
+                    <%= button_to check_out_patient_path(patient), method: :patch, class: "btn btn-link text-danger p-0", data: { confirm: 'Check-out this patient?' } do %>
+                      <i class="fas fa-user-minus fa-lg"></i> <!-- Relevant icon for Check-out -->
+                    <% end %>
+                  <% else %>
+                    <%= patient.check_out.strftime('%d-%m-%Y %H:%M') %>
+                  <% end %>
+                </div>
+              </td>
+              
+              <td class="text-center">
+                <div class="d-flex justify-content-center">
+                  <button type="button" class="btn btn-link btn-warning p-0 mx-3" data-toggle="modal" data-target="#edit-patient-modal-<%= patient.id %>">
+                    <i class="fas fa-edit fa-lg"></i>
+                  </button>                 
+                  <%= button_to patient_path(patient), method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-link text-danger p-0" do %>
+                    <i class="fas fa-trash-alt fa-lg"></i>
+                  <% end %> 
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+      <!-- Pagination -->
+      <div class="d-flex justify-content-center mt-3">
+        <%= paginate @patients, theme: 'bootstrap4' %>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal for adding a new patient -->
+<div class="modal fade" id="add-patient-modal" tabindex="-1" role="dialog" aria-labelledby="addPatientModalLabel" aria-hidden="true">
+  <div class="modal-dialog bg-dark" role="document">
+    <div class="modal-content bg-dark">
+      <div class="modal-header">
+        <h4 class="modal-title" id="addPatientModalLabel">New Patient</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div id="modal-body-content">
+        <%= form_with(model: Patient.new, url: patients_path, local: true) do |form| %>
+          <% if form.object.errors.any? %>
+            <div id="error_explanation">
+              <h2><%= pluralize(form.object.errors.count, "error") %> prohibited this patient from being saved:</h2>
+              <ul>
+                <% form.object.errors.full_messages.each do |message| %>
+                  <li><%= message %></li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+          <div class="modal-body">
+            <div class="form text-white-50 form-fields">
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <%= form.label :name %>
+                  <%= form.text_field :name, class: "form-control" %>
+                </div>
+                <div class="form-group col-md-6">
+                  <%= form.label :phone_no %>
+                  <%= form.text_field :phone_no, class: "form-control" %>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <%= form.label :address %>
+                  <%= form.text_area :address, class: "form-control" %>
+                </div>
+                <div class="form-group col-md-6">
+                  <%= form.label :insurance_no %>
+                  <%= form.text_field :insurance_no, class: "form-control" %>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <%= form.label :note %>
+                  <%= form.text_area :note, class: "form-control" %>
+                </div>
+                <div class="form-group col-md-6">
+                  <%= form.label :insurance_type %>
+                  <%= form.text_field :insurance_type, class: "form-control" %>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <%= form.label :patient_file_no %>
+                  <%= form.text_field :patient_file_no, class: "form-control" %>
+                </div>
+                <div class="form-group col-md-6">
+                  <%= form.label :emirate_id_no %>
+                  <%= form.text_field :emirate_id_no, class: "form-control" %>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <%= form.label :status %>
+                  <%= form.select :status, ['active', 'inactive'], {}, class: "form-control" %>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <%= form.submit 'Save', class: 'btn btn-fill btn-info' %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<% @patients.each do |patient| %>
+  <div class="modal fade" id="edit-patient-modal-<%= patient.id %>" tabindex="-1" role="dialog" aria-labelledby="editPatientModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content bg-dark">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editPatientModalLabel">Edit Patient</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div id="modal-body-content">
+          <%= form_with(model: patient, local: true, html: { multipart: true }) do |form| %>
+            <% if form.object.errors.any? %>
+              <div id="error_explanation" class="alert alert-danger">
+                <h5><%= pluralize(form.object.errors.count, "error") %> prohibited this patient from being updated:</h5>
+                <ul>
+                  <% form.object.errors.full_messages.each do |message| %>
+                    <li><%= message %></li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+
+            <div class="modal-body">
+              <div class="form text-white-50 form-fields">
+                <div class="form-row">
+                  <div class="form-group col-md-6">
+                    <%= form.label :name %>
+                    <%= form.text_field :name, class: "form-control"%>
+                  </div>
+                  <div class="form-group col-md-6">
+                    <%= form.label :phone_no %>
+                    <%= form.text_field :phone_no, class: "form-control"%>
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group col-md-6">
+                    <%= form.label :address %>
+                    <%= form.text_area :address, class: "form-control"%>
+                  </div>
+                  <div class="form-group col-md-6">
+                    <%= form.label :insurance_no %>
+                    <%= form.text_field :insurance_no, class: "form-control" %>
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group col-md-6">
+                    <%= form.label :note %>
+                    <%= form.text_area :note, class: "form-control"%>
+                  </div>
+                  <div class="form-group col-md-6">
+                    <%= form.label :insurance_type %>
+                    <%= form.text_field :insurance_type, class: "form-control" %>
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group col-md-6">
+                    <%= form.label :patient_file_no %>
+                    <%= form.text_field :patient_file_no, class: "form-control"%>
+                  </div>
+                  <div class="form-group col-md-6">
+                    <%= form.label :emirate_id_no %>
+                    <%= form.text_field :emirate_id_no, class: "form-control"%>
+                  </div>
+                </div>
+
+                <div class="form-row">
+                <div class="form-group col-md-6">
+                  <%= form.label :status %>
+                  <%= form.select :status, ['active', 'inactive'], {}, class: "form-control" %>
+                </div>
+              </div>
+              </div>
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <%= form.submit 'Update', class: 'btn btn-fill btn-warning' %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
