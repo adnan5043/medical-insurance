@@ -7,11 +7,18 @@ class TransactionsController < ApplicationController
 
   def download_report
     username = params[:username]
+    report_type = params[:report_type]
+
     @transactions = if username.present?
                       branch = Branch.find_by(username: username)
                       if branch
                         clinical_id = branch.clinical_id
-                        TransactionData.where("sender_id = ? OR receiver_id = ?", clinical_id, clinical_id)
+                        if report_type == "rejection"
+                          TransactionData.where("denial_code IS NOT NULL")
+                                         .where("sender_id = ? OR receiver_id = ?", clinical_id, clinical_id)
+                        else
+                          TransactionData.where("sender_id = ? OR receiver_id = ?", clinical_id, clinical_id)
+                        end
                       else
                         TransactionData.none
                       end
@@ -21,7 +28,10 @@ class TransactionsController < ApplicationController
 
     respond_to do |format|
       format.html
-      format.xlsx { render xlsx: "report", template: "transactions/report" }
+      format.xlsx do
+        report_name = report_type == "rejection" ? "rejection_report" : "full_report"
+        render xlsx: report_name, template: "transactions/report"
+      end
     end
   end
 

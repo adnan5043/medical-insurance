@@ -6,8 +6,27 @@
     <%= form.collection_select :username, Branch.all, :username, :username, { prompt: "Select a Username" }, class: 'form-control', id: 'username_select' %>
   </div>
 
+  <%= form.hidden_field :report_type, value: 'full', id: 'report_type_field' %>
+
   <div class="d-flex justify-content-between mt-3">
-    <%= form.submit "Download Report", class: "btn btn-primary btn-lg shadow-sm px-4" %>
-    <%= link_to "Cancel", root_path, class: "btn btn-secondary btn-lg shadow-sm px-4" %>
+    <%= form.submit "Full Report", class: "btn btn-primary btn-lg shadow-sm px-4", id: 'download_full_report' %>
+    <%= form.submit "Rejection Report", class: "btn btn-primary btn-lg shadow-sm px-4", id: 'download_rejection_report' %>
   </div>
 <% end %>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const form = document.getElementById("download_report_form");
+    const fullReportButton = document.getElementById('download_full_report');
+    const rejectionReportButton = document.getElementById('download_rejection_report');
+    const reportTypeField = document.getElementById('report_type_field');
+
+    fullReportButton.addEventListener("click", function() {
+      reportTypeField.value = 'full';
+    });
+
+    rejectionReportButton.addEventListener("click", function() {
+      reportTypeField.value = 'rejection';
+    });
+  });
+</script>
