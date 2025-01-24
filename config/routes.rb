@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  get 'welcome/index'
   resources :patients do
     member do
       patch :check_in
@@ -16,11 +17,11 @@ Rails.application.routes.draw do
     end
   end
   resources :doctorlists
-  resources :transactions, only: [:show] do
+  resources :transactions, only: [:index,:show] do
     collection do
         get 'download_report' 
       end
     post :fetch_transactions, on: :collection
   end
-  root 'transactions#index'
+  root 'welcome#index'
 end

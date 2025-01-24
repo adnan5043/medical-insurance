@@ -3,15 +3,23 @@
     <%= link_to(root_path) do %>
       <div class="logo">
         <%= image_tag('img/mdi1.png', class: 'sidebar-image') %>
-        <span class="logo-text logo-normal">MedicalInsurance</span>
+        <span class="logo-text logo-normal">Medical Insurance</span>
       </div>
     <% end %>
 
     <ul class="nav">
+      <!-- Welcome -->
+      <li class="<%#= 'active' if current_page?(root_path) %>">
+        <%#= link_to root_path do %>
+          <%# <i class="fas fa-home"></i> %>
+          <%# <p>Welcome</p> %>
+        <%# end %>
+      <%# </li> %>
+
       <!-- API Request -->
       <% if sidebar_permission?("API Request") %>
-        <li class="<%= 'active' if current_page?(root_path) %>">
-          <%= link_to root_path do %>
+        <li class="<%= 'active' if current_page?(transactions_path) %>">
+          <%= link_to transactions_path do %>
             <i class="fas fa-cogs"></i>
             <p>API Request</p>
           <% end %>
@@ -28,6 +36,7 @@
         </li>
       <% end %>
 
+      <!-- Patient -->
       <% if sidebar_permission?("Patient") %>
         <li class="<%= 'active' if current_page?(patients_path) %>">
           <%= link_to patients_path do %>
@@ -36,6 +45,7 @@
           <% end %>
         </li>
       <% end %>
+
       <!-- Admin -->
       <% if sidebar_permission?("Admin") %>
         <li class="<%= 'active' if controller.controller_name == 'admins' %>">

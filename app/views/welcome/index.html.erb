@@ -1,0 +1,50 @@
+<style>
+  .container {
+    text-align: center;
+    font-size: 3rem;
+    font-weight: bold;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+  }
+
+  .letter {
+    opacity: 0;
+    display: inline-block;
+    transition: opacity 0.3s ease-in-out;
+  }
+
+  .letter.visible {
+    opacity: 1;
+  }
+</style>
+
+<div class="container"></div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const text = "Welcome to Medical Insurance";
+    const container = document.querySelector(".container");
+    let index = 0;
+
+    // Create span elements for each letter
+    text.split("").forEach((char) => {
+      const span = document.createElement("span");
+      span.textContent = char === " " ? "\u00A0" : char; // Preserve spaces
+      span.classList.add("letter");
+      container.appendChild(span);
+    });
+
+    const letters = document.querySelectorAll(".letter");
+
+    const showLetter = () => {
+      if (index < letters.length) {
+        letters[index].classList.add("visible");
+        index++;
+        setTimeout(showLetter, 150); // Adjust timing for each letter
+      }
+    };
+
+    showLetter();
+  });
+</script>

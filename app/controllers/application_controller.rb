@@ -25,6 +25,8 @@ class ApplicationController < ActionController::Base
       return
     end
     permission_needed = case request.path
+                        when transactions_path
+                          "API Request"
                         when download_report_transactions_path
                           "Report"
                         when admins_path
