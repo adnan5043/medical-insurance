@@ -29,6 +29,8 @@ class ApplicationController < ActionController::Base
                           "API Request"
                         when download_report_transactions_path
                           "Report"
+                        when transaction_data_path
+                          "Payment"
                         when admins_path
                           "Admin"
                         when settings_path

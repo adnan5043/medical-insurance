@@ -35,7 +35,16 @@
           <% end %>
         </li>
       <% end %>
-
+      <!-- Payment -->
+      <% if sidebar_permission?("Payment") %>
+        <li class="<%= 'active' if current_page?(transaction_data_path) %>">
+          <%= link_to transaction_data_path do %>
+            <i class="fas fa-credit-card"></i>
+            <p>Payment</p>
+          <% end %>
+        </li>
+      <% end %>
+      
       <!-- Patient -->
       <% if sidebar_permission?("Patient") %>
         <li class="<%= 'active' if current_page?(patients_path) %>">

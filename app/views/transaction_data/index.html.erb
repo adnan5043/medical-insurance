@@ -1,0 +1,156 @@
+<div class="card">
+  <div class="card-header">
+    <h4 class="card-title">Transaction Data</h4>
+  </div>
+
+  <div class="card-body">
+    <!-- Button to trigger the modal -->
+    <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#add-transaction-modal">
+      Add Payment
+    </button>
+
+    <div class="table-responsive">
+      <table class="table table-striped custom-table table-hover table-checkable order-column valign-middle">
+        <thead class="text-primary">
+          <tr>
+            <th>#</th>
+            <th>Receiver ID</th>
+            <th>Activity ID</th>
+            <th>Data Type</th>
+            <th>transaction_date</th>
+            <th>Payment Amount</th>
+            <th>Received Payment</th>
+            <th class="text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @transaction_dataa.each_with_index do |transaction, index| %>
+            <tr>
+              <td><%= index + 1 %></td>
+              <td><%= transaction.receiver_id %></td>
+              <td><%= transaction.activity_id %></td>
+              <td><%= transaction.data_type %></td>
+              <td><%= transaction.transaction_date %></td>
+              <td><%= transaction.activity_payment_amount %></td>
+              <td><%= transaction.received_payment %></td>
+              <td class="text-center">
+                <div class="d-flex justify-content-center">
+                  <!-- Edit Button -->
+                  <button type="button" class="btn btn-link btn-warning p-0 mx-3" data-toggle="modal" data-target="#edit-transaction-modal-<%= transaction.id %>">
+                    <i class="fas fa-edit fa-lg"></i>
+                  </button>
+                  <!-- Delete Button -->
+                  <%= button_to transaction_datum_path(transaction), method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-link text-danger p-0" do %>
+                    <i class="fas fa-trash-alt fa-lg"></i>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+
+      <!-- Pagination -->
+      <div class="d-flex justify-content-center mt-3">
+        <%#= paginate @transaction_dataa, theme: 'bootstrap4' %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for adding transaction -->
+<div class="modal fade" id="add-transaction-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog bg-dark" role="document">
+    <div class="modal-content bg-dark">
+      <div class="modal-header">
+        <h4 class="modal-title" id="exampleModalLongTitle">New Payment</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div id="modal-body-content">
+        <%= form_with(model: @transaction_data, url: transaction_data_path, local: true) do |form| %>
+          <% if form.object.errors.any? %>
+            <div id="error_explanation">
+              <h2><%= pluralize(form.object.errors.count, "error") %> prohibited this transaction from being saved:</h2>
+              <ul>
+                <% form.object.errors.full_messages.each do |message| %>
+                  <li><%= message %></li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+          <div class="modal-body">
+            <div class="form text-white-50 form-fields">
+              <div class="form-row">
+                <div class="form-group col-md-12">
+                  <%= form.label :activity_Id %>
+                  <%= form.text_field :activity_id, value: '', class: "form-control" %> <!-- Ensure the value is empty -->
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group col-md-12">
+                  <%= form.label :data_type %>
+                  <%= form.select :data_type, options_for_select(['Remittance.Advice', 'Claim.Submission']), {}, class: "form-control" %>
+                </div>
+              </div>
+
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <%= form.submit 'Save', class: 'btn btn-fill btn-info' %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal for editing transaction -->
+<% @transaction_dataa.each do |transaction| %>
+  <div class="modal fade" id="edit-transaction-modal-<%= transaction.id %>" tabindex="-1" role="dialog" aria-labelledby="editTransactionModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content bg-dark">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editTransactionModalLabel">Edit Payment</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div id="modal-body-content">
+          <%= form_with(model: transaction, local: true, html: { multipart: true }) do |form| %>
+            <% if form.object.errors.any? %>
+              <div id="error_explanation" class="alert alert-danger">
+                <h5><%= pluralize(form.object.errors.count, "error") %> prohibited this transaction from being updated:</h5>
+                <ul>
+                  <% form.object.errors.full_messages.each do |message| %>
+                    <li><%= message %></li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+
+            <div class="modal-body">
+              <div class="form text-white-50 form-fields">
+                <div class="form-row">
+                  <div class="form-group col-md-12">
+                    <%= form.label :received_payment %>
+                    <%= form.number_field :received_payment, step: 0.01, class: "form-control" %>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <%= form.submit 'Update', class: 'btn btn-fill btn-warning' %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

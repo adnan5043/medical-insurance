@@ -21,7 +21,7 @@
           <% @admins.each_with_index do |admin, index| %>
             <tr>
               <td><%= admin.title %></td>
-              <td><%= admin.permissions.reject(&:blank?).join(', ') %></td>
+              <td><%= admin.permissions.reject { |p| p.blank? || p == '0' }.join(', ') %></td>
               <td class="text-center">
                 <div class="d-flex justify-content-center">
                   <!-- Edit Button with Icon -->
@@ -68,21 +68,32 @@
           <div class="modal-body">
             <div class="form text-white-50 form-fields">
               <div class="form-row">
-              <div class="form-group col-md-12">
-                <%= form.label :title %>
-                <%= form.select :title, options_for_select(['Doctor', 'Reception'], form.object.title), { prompt: 'Select Title' }, class: "form-control", required: true %>
+                <div class="form-group col-md-12">
+                  <%= form.label :title %>
+                  <%= form.select :title, options_for_select(['Doctor', 'Reception'], form.object.title), { prompt: 'Select Title' }, class: "form-control", required: true %>
+                </div>
               </div>
-              </div>
+
               <div class="form-row">
                 <div class="form-group col-md-12">
-                  <%= form.label :permissions %>
-                  <%= form.collection_check_boxes :permissions, [
-                    ['API Request'],
-                    [ 'Report'],
-                    [ 'Admin'],
-                    [ 'Settings'],
-                    [ 'Patient'],
-                  ], :first, :last %>
+                  <%= form.label :permissions %><br>
+                  <%= form.check_box :permissions, { multiple: true }, 'API Request', nil %>
+                  <%= form.label :permissions, 'API Request' %><br>
+
+                  <%= form.check_box :permissions, { multiple: true }, 'Report', nil %>
+                  <%= form.label :permissions, 'Report' %><br>
+
+                  <%= form.check_box :permissions, { multiple: true }, 'Admin', nil %>
+                  <%= form.label :permissions, 'Admin' %><br>
+
+                  <%= form.check_box :permissions, { multiple: true }, 'Settings', nil %>
+                  <%= form.label :permissions, 'Settings' %><br>
+
+                  <%= form.check_box :permissions, { multiple: true }, 'Patient', nil %>
+                  <%= form.label :permissions, 'Patient' %><br>
+
+                  <%= form.check_box :permissions, { multiple: true }, 'Payment', nil %>
+                  <%= form.label :permissions, 'Payment' %><br>
                 </div>
               </div>
             </div>
@@ -124,21 +135,33 @@
             <div class="modal-body">
               <div class="form text-white-50 form-fields">
                 <div class="form-row">
-                <div class="form-group col-md-12">
-                  <%= form.label :title %>
-                  <%= form.select :title, options_for_select(['Doctor', 'Reception'], admin.title), { prompt: 'Select Title' }, class: "form-control", required: true %>
+                  <div class="form-group col-md-12">
+                    <%= form.label :title %>
+                    <%= form.select :title, options_for_select(['Doctor', 'Reception'], admin.title), { prompt: 'Select Title' }, class: "form-control", required: true %>
+                  </div>
                 </div>
-                </div>
+
                 <div class="form-row">
                   <div class="form-group col-md-12">
-                    <%= form.label :permissions %>
-                    <%= form.collection_check_boxes :permissions, [
-                      ['API Request'],
-                      ['Report'],
-                      ['Admin'],
-                      ['Settings'],
-                      ['Patient'],
-                    ], :first, :last, { class: "form-control" } %>
+                    <%= form.label :permissions %><br>
+                    <%= form.check_box :permissions, { multiple: true }, 'API Request' %>
+                    <%= form.label :permissions, 'API Request' %><br>
+
+                    <%= form.check_box :permissions, { multiple: true }, 'Report' %>
+                    <%= form.label :permissions, 'Report' %><br>
+
+                    <%= form.check_box :permissions, { multiple: true }, 'Admin'%>
+                    <%= form.label :permissions, 'Admin' %><br>
+
+                    <%= form.check_box :permissions, { multiple: true }, 'Settings' %>
+                    <%= form.label :permissions, 'Settings' %><br>
+
+                    <%= form.check_box :permissions, { multiple: true }, 'Patient' %>
+                    <%= form.label :permissions, 'Patient' %><br>
+
+                    <%= form.check_box :permissions, { multiple: true }, 'Payment' %>
+                    <%= form.label :permissions, 'Payment' %><br>
+
                   </div>
                 </div>
               </div>

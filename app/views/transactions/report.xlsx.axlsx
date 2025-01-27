@@ -31,7 +31,7 @@ wb.add_worksheet(name: "Transactions") do |sheet|
     "Sender ID", "Receiver ID", "Receiver", "Claim ID", "Transaction Date",
     "Activity Clinician", "Doctor Name", "Activity ID", "Activity Code",
     "Activity Start Date", "Activity Quantity", "Activity Net",
-    "Activity Payment Amount", "Claim Date Settlement",
+    "Activity Payment Amount","Received Amount", "Claim Date Settlement",
     "Claim Payment Reference", "Denial Code", "Denial code Description", "RA Comments", "Data Type", "Compare Data"
   ], style: header_style
 
@@ -74,7 +74,8 @@ wb.add_worksheet(name: "Transactions") do |sheet|
         transaction.activity_start.strftime('%Y-%m-%d %H:%M:%S'),  
         transaction.activity_quantity,        
         transaction.activity_net,             
-        transaction.activity_payment_amount,  
+        transaction.activity_payment_amount,
+        transaction.received_payment,  
         transaction.date_settlement.present? ? transaction.date_settlement.strftime('%Y-%m-%d %H:%M:%S') : nil,
         transaction.payment_reference,
         transaction.denial_code, 

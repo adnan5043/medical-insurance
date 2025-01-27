@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  get 'welcome/index'
+  resources :transaction_data, only: [:index, :new, :create, :edit, :update, :destroy]
   resources :patients do
     member do
       patch :check_in
