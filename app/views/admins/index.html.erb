@@ -95,6 +95,9 @@
 
                   <%= form.check_box :permissions, { multiple: true }, 'Payment', nil %>
                   <%= form.label :permissions, 'Payment' %><br>
+
+                  <%= form.check_box :permissions, { multiple: true }, 'Submissions', nil %>
+                  <%= form.label :permissions, 'Submissions' %><br>
                 </div>
               </div>
             </div>
@@ -159,7 +162,9 @@
 
                     <%= form.check_box :permissions, { multiple: true }, 'Payment' %>
                     <%= form.label :permissions, 'Payment' %><br>
-
+                    
+                    <%= form.check_box :permissions, { multiple: true }, 'Submissions', nil %>
+                    <%= form.label :permissions, 'Submissions' %><br>
                   </div>
                 </div>
               </div>

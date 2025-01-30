@@ -2,6 +2,7 @@ class DenialcodelistsController < ApplicationController
   before_action :set_denialcodelist, only: [:edit, :update, :destroy]
 
   def index
+    authorize :settings, :index?
     @denialcodelists = Denialcodelist.page(params[:page])
     @denialcodelist = Denialcodelist.new
   end

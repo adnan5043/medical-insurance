@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :submissions
   resources :transaction_data, only: [:index, :new, :create, :edit, :update, :destroy]
   resources :patients do
     member do

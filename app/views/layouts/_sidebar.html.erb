@@ -74,6 +74,15 @@
           <% end %>
         </li>
       <% end %>
+      <!-- Submissions -->
+      <% if sidebar_permission?("Submissions") %>
+        <li class="<%= 'active' if current_page?(submissions_path) %>">
+          <%= link_to submissions_path do %>
+            <i class="fas fa-file-alt"></i>
+            <p>Submissions</p>
+          <% end %>
+        </li>
+      <% end %>
 
       <!-- Logout -->
       <li>

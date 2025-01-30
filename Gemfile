@@ -40,6 +40,8 @@ gem 'kaminari-bootstrap'
 gem 'roo'
 gem 'countries'
 gem 'country_select'
+gem 'pundit'
+
 # Use Redis adapter to run Action Cable in production
 # gem "redis", ">= 4.0.1"
 

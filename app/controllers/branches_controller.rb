@@ -2,6 +2,7 @@ class BranchesController < ApplicationController
   before_action :set_branch, only: %i[show edit update destroy]
 
   def index
+  authorize Branch, :index? 
   @branches = Branch.page(params[:page])
   # @branches = Branch.all
   @branch = Branch.new

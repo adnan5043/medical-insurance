@@ -2,6 +2,7 @@ class DoctorlistsController < ApplicationController
   before_action :set_doctorlist, only: %i[show edit update destroy]
 
   def index
+    authorize :settings, :index?
     @doctorlists = Doctorlist.includes(:userable).page(params[:page])
     @doctorlist = Doctorlist.new
     @user = User.new 

@@ -1,11 +1,16 @@
 class ApplicationController < ActionController::Base
   before_action :authenticate_user!
   before_action :validate_recaptcha_for_login, if: :devise_login_action?
+  include Pundit
   before_action :check_sidebar_permissions, unless: -> { devise_controller? || request.path == root_path }
+  rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
 
   private
 
-  # Check if the current action is a Devise login
+  def user_not_authorized
+    flash[:alert] = "You don't have permission to access this page."
+    redirect_to(request.referer || root_path)
+  end
   def devise_login_action?
     controller_name == 'sessions' && action_name == 'create'
   end
@@ -35,6 +40,8 @@ class ApplicationController < ActionController::Base
                           "Admin"
                         when settings_path
                           "Settings"
+                        when submissions_path
+                          "Submissions"
                         when patients_path
                           "Patient"
                         else
