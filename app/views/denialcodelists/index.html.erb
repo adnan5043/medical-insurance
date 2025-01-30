@@ -1,12 +1,12 @@
 <div class="card">
   <div class="card-header">
-    <h4 class="card-title">Denial Codes</h4>
+    <h4 class="card-title">Dental Codes</h4>
   </div>
 
   <div class="card-body">
     <div class="d-flex justify-content-between">
     <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#add-denial-code-modal">
-      New Denial Code
+      New Dental Code
     </button>
     <%= form_with url: import_denialcodelists_path, method: :post, local: true, html: { multipart: true, id: "file-upload-form" } do |f| %>
       <div class="form-group">
@@ -23,7 +23,7 @@
        <thead class="text-primary">
         <tr>
           <th>#</th>
-          <th>Denial Code</th>
+          <th>Dental Code</th>
           <th>Description</th>
           <th>Effective From</th>
           <th>Effective To</th>
@@ -66,7 +66,7 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title" id="addDenialCodeModalLabel">Create New Denial Code</h5>
+        <h5 class="modal-title" id="addDenialCodeModalLabel">Create New Dental Code</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -88,7 +88,7 @@
             <div class="form text-white-50 form-fields">
               <div class="form-row">
                 <div class="form-group col-md-12">
-                  <%= form.label :denial_code %>
+                  <%= form.label :dental_code %>
                   <%= form.text_field :denial_code, class: "form-control", required: true %>
                 </div>
               </div>
@@ -127,7 +127,7 @@
     <div class="modal-dialog" role="document">
       <div class="modal-content bg-dark">
         <div class="modal-header">
-          <h5 class="modal-title" id="editDenialCodeModalLabel">Edit Denial Code</h5>
+          <h5 class="modal-title" id="editDenialCodeModalLabel">Edit Dental Code</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -149,7 +149,7 @@
               <div class="form text-white-50 form-fields">
                 <div class="form-row">
                   <div class="form-group col-md-12">
-                    <%= form.label :denial_code %>
+                    <%= form.label :dental_code %>
                     <%= form.text_field :denial_code, class: "form-control" %>
                   </div>
                 </div>

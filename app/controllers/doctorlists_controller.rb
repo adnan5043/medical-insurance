@@ -18,14 +18,13 @@ class DoctorlistsController < ApplicationController
   def create
     ActiveRecord::Base.transaction do
       @user = User.new(user_params)
-      @user.user_type = "Doctor" 
       @doctorlist = Doctorlist.new(doctorlist_params)
       @doctorlist.userable = @user 
 
       if @user.save && @doctorlist.save
-        redirect_to doctorlists_path, notice: 'Doctor data was successfully created.'
+        redirect_to doctorlists_path, notice: 'User data was successfully created.'
       else
-        redirect_to doctorlists_path, alert: 'There were errors creating the doctor'
+        redirect_to doctorlists_path, alert: "Errors: #{@user.errors.full_messages.join(', ')}"
       end
     end
   end
@@ -38,7 +37,7 @@ class DoctorlistsController < ApplicationController
     ActiveRecord::Base.transaction do
       @user = @doctorlist.userable
       if @user.update(user_params) && @doctorlist.update(doctorlist_params)
-        redirect_to doctorlists_path, notice: 'Doctor data was successfully updated.'
+        redirect_to doctorlists_path, notice: 'User data was successfully updated.'
       else
         redirect_to doctorlists_path, alert: "Errors: #{@user.errors.full_messages.join(', ')}"
       end
@@ -55,9 +54,9 @@ class DoctorlistsController < ApplicationController
     end
     @doctorlist.destroy
 
-    redirect_to doctorlists_url, notice: 'Doctor data was successfully deleted.'
+    redirect_to doctorlists_url, notice: 'User data was successfully deleted.'
   rescue ActiveRecord::RecordInvalid => e
-    redirect_to doctorlists_url, alert: "Failed to delete doctor data: #{e.message}"
+    redirect_to doctorlists_url, alert: "Failed to delete User data: #{e.message}"
   end
 
   private
@@ -67,20 +66,20 @@ class DoctorlistsController < ApplicationController
   end
 
   def doctorlist_params
-    params.require(:doctorlist).permit(:doctor_name, :activity_clinician, :basic_salary, :percentage)
+    params.require(:doctorlist).permit(:activity_clinician,:percentage)
   end
 
   def user_params
     if params[:user]
       params.require(:user).permit(
-        :first_name, :last_name, :phone, :address, :avatar, 
-        :employee_designation, :joining_date, :email, 
+        :user_type, :first_name, :last_name, :country_code,:phone, :address, :avatar, 
+        :employee_designation, :joining_date, :email,:basic_salary,
         :password, :password_confirmation
       )
     elsif params[:doctorlist] && params[:doctorlist][:userable_attributes]
       params.require(:doctorlist).require(:userable_attributes).permit(
-        :first_name, :last_name, :phone, :address, :avatar, 
-        :employee_designation, :joining_date, :email, 
+        :user_type,:first_name, :last_name, :country_code,:phone, :address, :avatar, 
+        :employee_designation, :joining_date, :email,:basic_salary, 
         :password, :password_confirmation
       )
     else

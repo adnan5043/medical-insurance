@@ -1,12 +1,12 @@
 <div class="card">
   <div class="card-header">
-    <h4 class="card-title">Doctor's List</h4>
+    <h4 class="card-title">All User's List</h4>
   </div>
 
   <div class="card-body">
     <!-- Button to trigger the modal for new doctor -->
     <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#add-doctor-modal">
-       New Doctor
+       New User
     </button>
 
     <div class="table-responsive">
@@ -14,8 +14,6 @@
         <thead class="text-primary">
           <tr>
             <th>#</th>
-            <th>Doctor's Name</th>
-            <th>License Number</th>
             <th>First Name</th>
             <th>Last Name</th>
             <th>Email</th>
@@ -24,6 +22,7 @@
             <th>Employee Designation</th>
             <th>Joining Date</th>
             <th>Basic Salary</th>
+            <th>License Number</th>
             <th>Percentage</th>
             <th>Avatar</th>
             <th class="text-center">Actions</th>
@@ -33,17 +32,16 @@
           <% @doctorlists.each_with_index do |doctorlist, index| %>
             <tr>
               <td><%= (index + 1) + (@doctorlists.current_page - 1) * @doctorlists.limit_value %></td>
-              <td><%= doctorlist.doctor_name %></td>
-              <td><%= doctorlist.activity_clinician %></td>
               <% if doctorlist.userable.present? %>
                 <td><%= doctorlist.userable.first_name %></td>
                 <td><%= doctorlist.userable.last_name %></td>
                 <td><%= doctorlist.userable.email %></td>
-                <td><%= doctorlist.userable.phone %></td>
+                <td><%= "+#{doctorlist.userable.country_code} #{doctorlist.userable.phone}" %></td>
                 <td><%= doctorlist.userable.address %></td>
                 <td><%= doctorlist.userable.employee_designation %></td>
                 <td><%= doctorlist.userable.joining_date %></td>
-                <td><%= number_to_currency(doctorlist.basic_salary) %></td>
+                <td><%= number_to_currency(doctorlist.userable.basic_salary) %></td>
+                <td><%= doctorlist.activity_clinician %></td>
                 <td><%= doctorlist.percentage %>%</td>
                 <td>
                 <% if doctorlist.userable.avatar.attached? %>
@@ -84,7 +82,7 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title" id="addDoctorModalLabel">Create New Doctor</h5>
+        <h5 class="modal-title" id="addDoctorModalLabel">Create New User</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -93,56 +91,65 @@
         <%= form_with(url: doctorlists_path, local: true, html: { multipart: true }) do |form| %>
           <div class="modal-body">
             <div class="form text-white-50 form-fields">
-              <!-- Doctorlist Fields -->
                 <div class="form-row">
                   <div class="form-group col-md-6">
-                    <%= form.label :doctor_name %>
-                    <%= form.text_field :doctor_name, class: "form-control", required: true, name: "doctorlist[doctor_name]" %>
+                    <%= form.label :user_type, "User Type", class: 'form-label text-white' %>
+                    <%= form.collection_select :user_type, Admin.all, :title, :title, { prompt: "select a user type" }, class: 'form-control custom-input-height', id: 'usertype_select',required: true, name: "user[user_type]" %>
                   </div>
-                  <div class="form-group col-md-6">
-                    <%= form.label :activity_clinician, "License Number" %>
-                    <%= form.text_field :activity_clinician, class: "form-control", required: true, name: "doctorlist[activity_clinician]" %>
-                  </div>
-                </div>
-              <!-- User Fields -->
-                <div class="form-row">
                   <div class="form-group col-md-6">
                     <%= form.label :first_name %>
                     <%= form.text_field :first_name, class: "form-control", required: true, name: "user[first_name]" %>
                   </div>
+                </div>
+                <div class="form-row">
                   <div class="form-group col-md-6">
                     <%= form.label :last_name %>
                     <%= form.text_field :last_name, class: "form-control", required: true, name: "user[last_name]" %>
                   </div>
-                </div>
-                <div class="form-row">
                   <div class="form-group col-md-6">
                     <%= form.label :email %>
                     <%= form.email_field :email, class: "form-control", required: true, name: "user[email]" %>
                   </div>
-                  <div class="form-group col-md-6">
-                    <%= form.label :phone %>
-                    <%= form.telephone_field :phone, class: "form-control", required: true, name: "user[phone]" %>
-                  </div>
                 </div>
                 <div class="form-row">
-                  <div class="form-group col-md-6">
+                  <div class="form-group col-md-12">
+                    <%= form.label :phone %>
+                    <div class="input-group">
+                      <%= form.select :country_code, 
+                                       country_codes_for_select, 
+                                       { prompt: "Select Country" }, 
+                                       class: "form-control col-4 country-select custom-input-height", 
+                                       required: true,  
+                                       name: "user[country_code]" %>
+                      <%= form.telephone_field :phone, 
+                                                class: "form-control col-8 custom-input-height", 
+                                                required: true, 
+                                                name: "user[phone]" %>
+                    </div>
+                  </div>                  
+                  <div class="form-group col-md-12">
                     <%= form.label :address %>
-                    <%= form.text_field :address, class: "form-control", name: "user[address]" %>
-                  </div>
-                  <div class="form-group col-md-6">
-                    <%= form.label :employee_designation %>
-                    <%= form.text_field :employee_designation, class: "form-control", name: "user[employee_designation]" %>
+                    <%= form.text_area :address, class: "form-control", name: "user[address]" %>
                   </div>
                 </div>
                 <div class="form-row">
                   <div class="form-group col-md-6">
                     <%= form.label :basic_salary %>
-                    <%= form.number_field :basic_salary, class: "form-control", required: true, name: "doctorlist[basic_salary]" %>
+                    <%= form.number_field :basic_salary, class: "form-control", required: true, name: "user[basic_salary]" %>
                   </div>
                   <div class="form-group col-md-6">
-                    <%= form.label :percentage %>
-                    <%= form.number_field :percentage, class: "form-control", required: true, name: "doctorlist[percentage]" %>
+                    <%= form.label :employee_designation %>
+                    <%= form.text_field :employee_designation, class: "form-control",  required: true, name: "user[employee_designation]" %>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group col-md-6">
+                    <%= form.label :activity_clinician, "License Number" %>
+                    <%= form.text_field :activity_clinician, class: "form-control",  name: "doctorlist[activity_clinician]", id: "activity_clinician_field" %>
+                  </div>
+                  <div class="form-group col-md-6">
+                    <%= form.label :percentage, "Percentage" %>
+                    <%= form.number_field :percentage, class: "form-control", name: "doctorlist[percentage]", id: "percentage_field" %>
                   </div>
                 </div>
                 <div class="form-row">
@@ -182,7 +189,7 @@
     <div class="modal-dialog" role="document">
       <div class="modal-content bg-dark">
         <div class="modal-header">
-          <h5 class="modal-title" id="editDoctorModalLabel">Edit Doctor</h5>
+          <h5 class="modal-title" id="editDoctorModalLabel">Edit User</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -202,21 +209,12 @@
               <% end %>
 
               <div class="form-row">
-                <!-- Doctor Details Column -->
-                <div class="form-group col-md-6">
-                  <%= form.label :doctor_name %>
-                  <%= form.text_field :doctor_name, class: "form-control", required: true %>
-                </div>
-                <div class="form-group col-md-6">
-                  <%= form.label :activity_clinician, "License Number" %>
-                  <%= form.text_field :activity_clinician, class: "form-control", required: true %>
-                </div>
-              </div>
-              
-              <div class="form-row">
-                <!-- User Details -->
                 <% if doctorlist.userable.present? %>
                   <%= form.fields_for :userable, doctorlist.userable do |user_form| %>
+                    <div class="form-group col-md-6">
+                      <%= user_form.label :user_type, "User Type", class: 'form-label text-white' %>
+                      <%= user_form.collection_select :user_type, Admin.all, :title, :title, { selected: doctorlist.userable.user_type }, class: 'form-control', required: true, id: "usertype_select_#{doctorlist.id}" %>
+                    </div>
                     <div class="form-group col-md-6">
                       <%= user_form.label :first_name %>
                       <%= user_form.text_field :first_name, class: "form-control", required: true %>
@@ -229,26 +227,36 @@
                       <%= user_form.label :email %>
                       <%= user_form.email_field :email, class: "form-control", required: true %>
                     </div>
-                    <div class="form-group col-md-6">
+                    <div class="form-group col-md-12">
                       <%= user_form.label :phone %>
-                      <%= user_form.telephone_field :phone, class: "form-control", required: true %>
+                      <div class="input-group">
+                        <%= user_form.select :country_code, country_codes_for_select, { selected: doctorlist.userable.country_code }, class: "form-control col-6 country-select", name: "user[country_code]" %>
+                        <%= user_form.telephone_field :phone, class: "form-control col-8", required: true, name: "user[phone]" %>
+                      </div>
                     </div>
-                    <div class="form-group col-md-6">
+                    <div class="form-group col-md-12">
                       <%= user_form.label :address %>
-                      <%= user_form.text_field :address, class: "form-control" %>
+                      <%= user_form.text_area :address, class: "form-control" %>
                     </div>
                     <div class="form-group col-md-6">
                       <%= user_form.label :employee_designation %>
-                      <%= user_form.text_field :employee_designation, class: "form-control" %>
+                      <%= user_form.text_field :employee_designation, required: true, class: "form-control" %>
                     </div>
                     <div class="form-group col-md-6">
-                      <%= form.label :basic_salary %>
-                      <%= form.number_field :basic_salary, class: "form-control", required: true %>
+                      <%= user_form.label :basic_salary %>
+                      <%= user_form.number_field :basic_salary, class: "form-control", required: true %>
                     </div>
+
+                    <div class="form-group col-md-6">
+                      <%= form.label :activity_clinician, "License Number" %>
+                      <%= form.text_field :activity_clinician, class: "form-control", id: "activity_clinician_field_#{doctorlist.id}" %>
+                    </div>
+
                     <div class="form-group col-md-6">
                       <%= form.label :percentage %>
-                      <%= form.number_field :percentage, class: "form-control", required: true %>
+                      <%= form.number_field :percentage, class: "form-control", id: "percentage_field_#{doctorlist.id}" %>
                     </div>
+
                     <div class="form-group col-md-6">
                       <%= user_form.label :joining_date %>
                       <%= user_form.date_field :joining_date, class: "form-control" %>
@@ -259,11 +267,11 @@
                     </div>
                     <div class="form-group col-md-6">
                       <%= form.label :password %>
-                      <%= form.password_field :password, required: true, class: "form-control" %>
+                      <%= form.password_field :password,  class: "form-control" %>
                     </div>
                     <div class="form-group col-md-6">
                       <%= form.label :password_confirmation %>
-                      <%= form.password_field :password_confirmation, required: true, class: "form-control" %>
+                      <%= form.password_field :password_confirmation, class: "form-control" %>
                     </div>
                   <% end %>
                 <% else %>
@@ -281,3 +289,88 @@
   </div>
 <% end %>
 
+
+<script >
+  document.addEventListener("DOMContentLoaded", function() {
+    // Function to toggle the visibility of the fields
+    function toggleFields(userTypeSelect, licenseNumberField, percentageField) {
+      if (userTypeSelect && licenseNumberField && percentageField) {
+        if (userTypeSelect.value === "Doctor") {
+          // Show the fields when "Doctor" is selected
+          licenseNumberField.closest(".form-group").style.display = "block";
+          percentageField.closest(".form-group").style.display = "block";
+        } else {
+          // Hide the fields when other user types are selected
+          licenseNumberField.closest(".form-group").style.display = "none";
+          percentageField.closest(".form-group").style.display = "none";
+        }
+      }
+    }
+
+    // Handle the create modal
+    const createUserTypeSelect = document.getElementById("usertype_select");
+    const createLicenseNumberField = document.getElementById("activity_clinician_field");
+    const createPercentageField = document.getElementById("percentage_field");
+
+    if (createUserTypeSelect && createLicenseNumberField && createPercentageField) {
+      // Initialize visibility for the create modal
+      toggleFields(createUserTypeSelect, createLicenseNumberField, createPercentageField);
+
+      // Add event listener for the create modal
+      createUserTypeSelect.addEventListener("change", function() {
+        toggleFields(createUserTypeSelect, createLicenseNumberField, createPercentageField);
+      });
+    }
+
+    // Handle the edit modals
+    document.querySelectorAll('[id^="edit-doctor-modal-"]').forEach(modal => {
+      const modalId = modal.id.split('-').pop();
+      const editUserTypeSelect = document.getElementById(`usertype_select_${modalId}`);
+      const editLicenseNumberField = document.getElementById(`activity_clinician_field_${modalId}`);
+      const editPercentageField = document.getElementById(`percentage_field_${modalId}`);
+
+      if (editUserTypeSelect && editLicenseNumberField && editPercentageField) {
+        // Initialize visibility for the edit modal
+        toggleFields(editUserTypeSelect, editLicenseNumberField, editPercentageField);
+
+        // Add event listener for the edit modal
+        editUserTypeSelect.addEventListener("change", function() {
+          toggleFields(editUserTypeSelect, editLicenseNumberField, editPercentageField);
+        });
+      }
+    });
+  });
+
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const countrySelect = document.querySelector(".country-select");
+
+    if (countrySelect) {
+      countrySelect.addEventListener("change", function () {
+        const selectedText = this.options[this.selectedIndex].text;
+        const countryCode = selectedText.match(/\(\+(\d+)\)/)?.[1] || "";
+
+        if (countryCode) {
+          // Display only the country code
+          this.options[this.selectedIndex].text = `+${countryCode}`;
+        }
+      });
+    }
+  });
+
+</script>
+
+<style>
+  .modal.show .modal-dialog {
+    -webkit-transform: translate(0, 0%);
+    transform: translate(0, 0%);
+  }
+  .modal-dialog {
+    max-width: 600px;
+    margin: 1.75rem auto;
+  }
+  .custom-input-height {
+    height: 40px;
+  }
+
+</style>

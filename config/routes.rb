@@ -16,7 +16,7 @@ Rails.application.routes.draw do
       post :import
     end
   end
-  resources :doctorlists
+  resources :doctorlists, path: 'user'
   resources :transactions, only: [:index,:show] do
     collection do
         get 'download_report' 

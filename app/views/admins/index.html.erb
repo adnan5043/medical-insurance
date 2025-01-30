@@ -1,12 +1,15 @@
-<div class="card">
-  <div class="card-header">
-    <h4 class="card-title">Admin List</h4>
-  </div>
+<div class="list-group mb-3">
+  <!-- Branches Tab -->
+  <%= link_to branches_path, class: "list-group-item list-group-item-action bg-dark text-white d-flex align-items-center mb-2 border-0 rounded-lg shadow-sm hover-zoom" do %>
+    <span class="fs-5">Branches</span>
+  <% end %>
+</div>
 
+<div class="card">
   <div class="card-body">
     <div class="d-flex justify-content-between">
     <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#add-admin-modal">
-      Manage Actors
+      Manage Permissions
     </button>    </div>
     <div class="table-responsive">
       <table class="table table-striped custom-table table-hover table-checkable order-column valign-middle">
@@ -42,12 +45,12 @@
   </div>
 </div>
 
-<!-- Modal for Add Admin -->
+<!-- Modal for Add permissions -->
 <div class="modal fade" id="add-admin-modal" tabindex="-1" role="dialog" aria-labelledby="addAdminModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title" id="addAdminModalLabel">Create New Admin</h5>
+        <h5 class="modal-title" id="addAdminModalLabel">Create New permissions</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -70,7 +73,8 @@
               <div class="form-row">
                 <div class="form-group col-md-12">
                   <%= form.label :title %>
-                  <%= form.select :title, options_for_select(['Doctor', 'Reception'], form.object.title), { prompt: 'Select Title' }, class: "form-control", required: true %>
+                  <%= form.text_field :title, class: "form-control", placeholder: "Enter title", required: true %>
+    
                 </div>
               </div>
 
@@ -82,9 +86,6 @@
 
                   <%= form.check_box :permissions, { multiple: true }, 'Report', nil %>
                   <%= form.label :permissions, 'Report' %><br>
-
-                  <%= form.check_box :permissions, { multiple: true }, 'Admin', nil %>
-                  <%= form.label :permissions, 'Admin' %><br>
 
                   <%= form.check_box :permissions, { multiple: true }, 'Settings', nil %>
                   <%= form.label :permissions, 'Settings' %><br>
@@ -108,13 +109,13 @@
   </div>
 </div>
 
-<!-- Modal for Edit Admin -->
+<!-- Modal for Edit permissions -->
 <% @admins.each do |admin| %>
   <div class="modal fade" id="edit-admin-modal-<%= admin.id %>" tabindex="-1" role="dialog" aria-labelledby="editAdminModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content bg-dark">
         <div class="modal-header">
-          <h5 class="modal-title" id="editAdminModalLabel">Edit Admin</h5>
+          <h5 class="modal-title" id="editAdminModalLabel">Edit permissions</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -137,7 +138,7 @@
                 <div class="form-row">
                   <div class="form-group col-md-12">
                     <%= form.label :title %>
-                    <%= form.select :title, options_for_select(['Doctor', 'Reception'], admin.title), { prompt: 'Select Title' }, class: "form-control", required: true %>
+                    <%= form.text_field :title, class: "form-control", placeholder: "Edit title", required: true %>
                   </div>
                 </div>
 
@@ -149,9 +150,6 @@
 
                     <%= form.check_box :permissions, { multiple: true }, 'Report' %>
                     <%= form.label :permissions, 'Report' %><br>
-
-                    <%= form.check_box :permissions, { multiple: true }, 'Admin'%>
-                    <%= form.label :permissions, 'Admin' %><br>
 
                     <%= form.check_box :permissions, { multiple: true }, 'Settings' %>
                     <%= form.label :permissions, 'Settings' %><br>
