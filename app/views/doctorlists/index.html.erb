@@ -92,10 +92,10 @@
           <div class="modal-body">
             <div class="form text-white-50 form-fields">
                 <div class="form-row">
-                  <div class="form-group col-md-6">
-                    <%= form.label :user_type, "User Type", class: 'form-label text-white' %>
-                    <%= form.collection_select :user_type, Admin.all, :title, :title, { prompt: "select a user type" }, class: 'form-control custom-input-height', id: 'usertype_select',required: true, name: "user[user_type]" %>
-                  </div>
+                <div class="form-group col-md-6">
+                  <%= form.label :admin_id, "User Type", class: 'form-label text-white' %>
+                  <%= form.collection_select :admin_id, Admin.all, :id, :title, { prompt: "Select a user type" }, class: 'form-control custom-input-height', id: 'usertype_select', required: true %>
+                </div>
                   <div class="form-group col-md-6">
                     <%= form.label :first_name %>
                     <%= form.text_field :first_name, class: "form-control", required: true, name: "user[first_name]" %>
@@ -211,10 +211,10 @@
               <div class="form-row">
                 <% if doctorlist.userable.present? %>
                   <%= form.fields_for :userable, doctorlist.userable do |user_form| %>
-                    <div class="form-group col-md-6">
-                      <%= user_form.label :user_type, "User Type", class: 'form-label text-white' %>
-                      <%= user_form.collection_select :user_type, Admin.all, :title, :title, { selected: doctorlist.userable.user_type }, class: 'form-control', required: true, id: "usertype_select_#{doctorlist.id}" %>
-                    </div>
+                  <div class="form-group col-md-6">
+                    <%= user_form.label :admin_id, "User Type", class: 'form-label text-white' %>
+                    <%= user_form.collection_select :admin_id, Admin.all, :id, :title, { selected: doctorlist.userable.admin_id }, class: 'form-control', required: true, id: "usertype_select_#{doctorlist.id}" %>
+                  </div>
                     <div class="form-group col-md-6">
                       <%= user_form.label :first_name %>
                       <%= user_form.text_field :first_name, class: "form-control", required: true %>
@@ -292,31 +292,29 @@
 
 <script >
   document.addEventListener("DOMContentLoaded", function() {
-    // Function to toggle the visibility of the fields
     function toggleFields(userTypeSelect, licenseNumberField, percentageField) {
       if (userTypeSelect && licenseNumberField && percentageField) {
-        if (userTypeSelect.value === "Doctor") {
-          // Show the fields when "Doctor" is selected
-          licenseNumberField.closest(".form-group").style.display = "block";
-          percentageField.closest(".form-group").style.display = "block";
-        } else {
-          // Hide the fields when other user types are selected
-          licenseNumberField.closest(".form-group").style.display = "none";
-          percentageField.closest(".form-group").style.display = "none";
+        if (userTypeSelect.value) {
+        const isDoctorSelected = ['doctor', 'doctors'].includes(userTypeSelect.selectedOptions[0].text.toLowerCase()) ||
+                            ['Doctor', 'Doctors'].includes(userTypeSelect.selectedOptions[0].text);
+          if (isDoctorSelected) {
+            licenseNumberField.closest(".form-group").style.display = "block";
+            percentageField.closest(".form-group").style.display = "block";
+          } else {
+            licenseNumberField.closest(".form-group").style.display = "none";
+            percentageField.closest(".form-group").style.display = "none";
+          }
         }
       }
     }
 
-    // Handle the create modal
     const createUserTypeSelect = document.getElementById("usertype_select");
     const createLicenseNumberField = document.getElementById("activity_clinician_field");
     const createPercentageField = document.getElementById("percentage_field");
 
     if (createUserTypeSelect && createLicenseNumberField && createPercentageField) {
-      // Initialize visibility for the create modal
       toggleFields(createUserTypeSelect, createLicenseNumberField, createPercentageField);
 
-      // Add event listener for the create modal
       createUserTypeSelect.addEventListener("change", function() {
         toggleFields(createUserTypeSelect, createLicenseNumberField, createPercentageField);
       });
@@ -340,6 +338,7 @@
       }
     });
   });
+
 
 
   document.addEventListener("DOMContentLoaded", function () {
