@@ -67,24 +67,10 @@ class DoctorlistsController < ApplicationController
   end
 
   def doctorlist_params
-    params.require(:doctorlist).permit(:activity_clinician,:percentage)
+    params.require(:doctorlist).permit(:activity_clinician, :percentage, userable_attributes: [:id, :user_type, :first_name, :last_name, :country_code, :phone, :address, :avatar, :employee_designation, :joining_date, :email, :basic_salary, :password, :password_confirmation])
   end
 
   def user_params
-    if params[:user]
-      params.require(:user).permit(
-        :user_type, :first_name, :last_name, :country_code,:phone, :address, :avatar, 
-        :employee_designation, :joining_date, :email,:basic_salary,
-        :password, :password_confirmation
-      )
-    elsif params[:doctorlist] && params[:doctorlist][:userable_attributes]
-      params.require(:doctorlist).require(:userable_attributes).permit(
-        :user_type,:first_name, :last_name, :country_code,:phone, :address, :avatar, 
-        :employee_designation, :joining_date, :email,:basic_salary, 
-        :password, :password_confirmation
-      )
-    else
-      raise ActionController::ParameterMissing, 'user'
-    end
+    params.require(:user).permit(:user_type, :first_name, :last_name, :country_code, :phone, :address, :avatar, :employee_designation, :joining_date, :email, :basic_salary, :password, :password_confirmation)
   end
 end

@@ -11,6 +11,10 @@ header_style = wb.styles.add_style(
 doctorlist_mapping = Doctorlist.where(activity_clinician: @transactions.pluck(:activity_clinician).uniq)
                                .index_by(&:activity_clinician)
 
+# Fetch users based on userable_id from Doctorlist
+user_mapping = User.where(id: doctorlist_mapping.values.map(&:userable_id)).index_by(&:id)
+
+
 denialcode_mapping = Denialcodelist.where(denial_code: @transactions.pluck(:denial_code).uniq)
                                    .index_by(&:denial_code)
 
@@ -39,7 +43,13 @@ wb.add_worksheet(name: "Transactions") do |sheet|
   @transactions.find_in_batches(batch_size: 5000) do |batch|
     batch.each do |transaction|
       # Use preloaded doctorlist mapping
-      doctor_name = doctorlist_mapping[transaction.activity_clinician]&.doctor_name || ""
+      # Use preloaded doctorlist mapping
+      doctorlist = doctorlist_mapping[transaction.activity_clinician]
+      user = user_mapping[doctorlist&.userable_id]
+
+      # Get first and last name from User table
+      doctor_name = user.present? ? "#{user.first_name} #{user.last_name}" : ""
+      
 
       # Lookup denial description from the Denialcodelist mapping
       denial_description = denialcode_mapping[transaction.denial_code]&.description || ""
@@ -75,7 +85,7 @@ wb.add_worksheet(name: "Transactions") do |sheet|
         transaction.activity_quantity,        
         transaction.activity_net,             
         transaction.activity_payment_amount,
-        transaction.received_payment,  
+        transaction.received_payment.present? ? transaction.received_payment : transaction.activity_payment_amount,
         transaction.date_settlement.present? ? transaction.date_settlement.strftime('%Y-%m-%d %H:%M:%S') : nil,
         transaction.payment_reference,
         transaction.denial_code, 

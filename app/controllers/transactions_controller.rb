@@ -5,35 +5,39 @@ class TransactionsController < ApplicationController
   def index
   end
 
-  def download_report
-    username = params[:username]
-    report_type = params[:report_type]
+def download_report
+  username = params[:username]
+  report_type = params[:report_type]
+  from_date = params[:transaction_from_date].presence
+  to_date = params[:transaction_to_date].presence
 
-    @transactions = if username.present?
-                      branch = Branch.find_by(username: username)
-                      if branch
-                        clinical_id = branch.clinical_id
-                        if report_type == "rejection"
-                          TransactionData.where("denial_code IS NOT NULL")
-                                         .where("sender_id = ? OR receiver_id = ?", clinical_id, clinical_id)
-                        else
-                          TransactionData.where("sender_id = ? OR receiver_id = ?", clinical_id, clinical_id)
-                        end
-                      else
-                        TransactionData.none
+  @transactions = if username.present?
+                    branch = Branch.find_by(username: username)
+                    if branch
+                      clinical_id = branch.clinical_id
+                      scope = TransactionData.where("sender_id = ? OR receiver_id = ?", clinical_id, clinical_id)
+                      scope = scope.where("denial_code IS NOT NULL") if report_type == "rejection"
+                      
+                      if from_date && to_date
+                        scope = scope.where(transaction_date: from_date..to_date)
                       end
+                      scope
                     else
                       TransactionData.none
                     end
+                  else
+                    TransactionData.none
+                  end
 
-    respond_to do |format|
-      format.html
-      format.xlsx do
-        report_name = report_type == "rejection" ? "rejection_report" : "full_report"
-        render xlsx: report_name, template: "transactions/report"
-      end
+  respond_to do |format|
+    format.html
+    format.xlsx do
+      report_name = report_type == "rejection" ? "rejection_report" : "full_report"
+      render xlsx: report_name, template: "transactions/report"
     end
   end
+end
+
 
   def show
     @transaction = Transaction.find(params[:id])

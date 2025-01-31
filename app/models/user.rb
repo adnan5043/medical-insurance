@@ -10,7 +10,7 @@ class User < ApplicationRecord
   belongs_to :admin, optional: true
 
   def allowed_permissions
-    return ["Report", "Admin", "Settings","API Request","Patient","Payment","Submissions"] if email == "medicalinsurance@gmail.com"
+    return ["Report", "Admin", "Settings","API Request","Patient","Payment","Submissions" ,"Branch"] if email == "medicalinsurance@gmail.com"
     admin_permissions = admin&.permissions || []
     matched_admin = Admin.find_by(title: user_type)
     matched_permissions = matched_admin&.permissions || []

@@ -5,7 +5,15 @@
     <%= form.label :username, "Username", class: 'form-label text-white' %>
     <%= form.collection_select :username, Branch.all, :username, :username, { prompt: "Select a Username" }, class: 'form-control', id: 'username_select' %>
   </div>
+  <div class="form-group mb-3">
+    <%= form.label :transaction_from_date, "From Date", class: 'form-label text-white' %>
+    <%= form.date_field :transaction_from_date, value: '', class: 'form-control light-white', id: 'transaction_from_date' %>
+  </div>
 
+  <div class="form-group mb-3">
+    <%= form.label :transaction_to_date, "To Date", class: 'form-label text-white' %>
+    <%= form.date_field :transaction_to_date, value: '', class: 'form-control light-white', id: 'transaction_to_date' %>
+  </div>
   <%= form.hidden_field :report_type, value: 'full', id: 'report_type_field' %>
 
   <div class="d-flex justify-content-between mt-3">
@@ -13,6 +21,7 @@
     <%= form.submit "Rejection Report", class: "btn btn-primary btn-lg shadow-sm px-4", id: 'download_rejection_report' %>
   </div>
 <% end %>
+
 
 <script>
   document.addEventListener("DOMContentLoaded", function() {

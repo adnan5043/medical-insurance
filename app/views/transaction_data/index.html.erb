@@ -89,12 +89,8 @@
                 </div>
               </div>
 
-              <div class="form-row">
-                <div class="form-group col-md-12">
-                  <%= form.label :data_type %>
-                  <%= form.select :data_type, options_for_select(['Remittance.Advice', 'Claim.Submission']), {}, class: "form-control" %>
-                </div>
-              </div>
+              <!-- Hidden field for data_type -->
+              <%= form.hidden_field :data_type, value: 'Remittance.Advice' %>
 
             </div>
           </div>
@@ -107,7 +103,6 @@
     </div>
   </div>
 </div>
-
 
 <!-- Modal for editing transaction -->
 <% @transaction_dataa.each do |transaction| %>
