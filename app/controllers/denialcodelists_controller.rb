@@ -18,7 +18,7 @@ class DenialcodelistsController < ApplicationController
   def create
     @denialcodelist = Denialcodelist.new(denialcodelist_params)
     if @denialcodelist.save
-      redirect_to denialcodelists_path, notice: 'Denial code was successfully created.'
+      redirect_to denialcodelists_path, notice: 'Dental code was successfully created.'
     else
       redirect_to denialcodelists_path, alert: "errors: #{@denialcodelist.errors.full_messages.join(', ')}"
     end
@@ -28,7 +28,7 @@ class DenialcodelistsController < ApplicationController
 
   def update
     if @denialcodelist.update(denialcodelist_params)
-      redirect_to denialcodelists_path, notice: 'Denial code was successfully updated.'
+      redirect_to denialcodelists_path, notice: 'Dental code was successfully updated.'
     else
       redirect_to denialcodelists_path, alert: "errors: #{@denialcodelist.errors.full_messages.join(', ')}"
     end
@@ -36,7 +36,7 @@ class DenialcodelistsController < ApplicationController
 
   def destroy
     @denialcodelist.destroy
-    redirect_to denialcodelists_path, notice: 'Denial code was successfully destroyed.'
+    redirect_to denialcodelists_path, notice: 'Dental code was successfully destroyed.'
   end
 
   private
