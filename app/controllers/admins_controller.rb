@@ -31,6 +31,7 @@ class AdminsController < ApplicationController
 
   def destroy
     @admin = Admin.find(params[:id])
+    @admin.users.destroy_all
     @admin.destroy
     redirect_to admins_path, notice: "Permissions successfully deleted!"
   end
