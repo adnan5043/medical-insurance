@@ -2,8 +2,15 @@ class PatientsController < ApplicationController
   before_action :set_patient, only: %i[show edit update destroy check_in check_out]
 
   def index
-    @patients = Patient.page(params[:page]) # for pagination
     @patient = Patient.new
+    @filter = params[:filter]
+  
+    @patients = case @filter
+                when 'check_in'
+                  Patient.joins(:patient_visits).where(patient_visits: { check_out: nil }).distinct.page(params[:page])
+                else
+                  Patient.page(params[:page])
+                end
   end
 
   def show
@@ -47,19 +54,21 @@ class PatientsController < ApplicationController
   end
 
   def check_in
-    @patient.update(check_in: Time.current)
-    redirect_to patients_path, notice: "Patient checked in successfully."
+    visit = @patient.patient_visits.create(check_in: Time.current)
+    if visit.persisted?
+      redirect_to patients_path, notice: "Patient checked in successfully."
+    else
+      redirect_to patients_path, alert: "Failed to check in patient: #{visit.errors.full_messages.join(', ')}"
+    end
   end
 
   def check_out
-    if @patient.check_in.blank?
-      render_notification("Cannot check out. The patient hasn't checked in yet.", type: :alert)
+    visit = @patient.patient_visits.where(check_out: nil).order(:check_in).last
+    if visit.nil?
+      redirect_to patients_path, alert: "No ongoing visit found for this patient."
     else
-      if @patient.update(check_out: Time.current)
-        redirect_to patients_path, notice: "Patient checked out successfully."
-      else
-        redirect_to patients_path, alert: "Error: #{@patient.errors.full_messages.join(', ')}"
-      end
+      visit.update(check_out: Time.current)
+      redirect_to patients_path, notice: "Patient checked out successfully."
     end
   end
 

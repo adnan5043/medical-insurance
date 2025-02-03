@@ -4,11 +4,31 @@
   </div>
 
   <div class="card-body">
-    <!-- Button to trigger the modal -->
-    <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#add-patient-modal">
-      New Patient
-    </button>
+    <div class="d-flex justify-content-between">
+      <!-- Button to trigger the modal -->
+      <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#add-patient-modal">
+        New Patient
+      </button>
 
+      <div class="mb-3 position-relative bposition">
+        <button id="filter-btn" class="btn btn-secondary d-flex">
+          Filter&nbsp;&nbsp;<span id="arrow-icon">&#9662;</span>
+        </button>
+        <!-- Hidden filter options (dropdown) -->
+        <div id="filter-options" class="dropdown-content mt-2 d-none position-absolute bg-black shadow p-3 rounded">
+          <%= form_with url: patients_path, method: :get, local: true, id: 'filter-form' do %>
+            <div class="form-check">
+              <%= radio_button_tag :filter, nil, @filter.nil?, id: 'filter_all' %>
+              <%= label_tag 'filter_all', 'All', class: "form-check-label text-white" %>
+            </div>
+            <div class="form-check">
+              <%= radio_button_tag :filter, 'check_in', @filter == 'check_in', id: 'filter_check_in' %>
+              <%= label_tag 'filter_check_in', 'Check-In', class: "form-check-label text-white" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
     <div class="table-responsive">
       <table class="table table-striped custom-table table-hover table-checkable order-column valign-middle">
         <thead class="text-primary">
@@ -41,32 +61,36 @@
               <td><%= patient.emirate_id_no %></td>
               <td><%= patient.insurance_no %></td>
               <td><%= patient.status %></td>
-              <td class="text-center">
-                <div class="d-flex justify-content-center">
-                  <% if patient.check_in.blank? %>
-                    <%= button_to check_in_patient_path(patient), method: :patch, class: "btn btn-link text-success p-0", data: { confirm: 'Check-in this patient?' } do %>
-                      <i class="fas fa-user-check fa-lg"></i> <!-- Relevant icon for Check-in -->
-                    <% end %>
-                  <% else %>
-                    <%= patient.check_in.strftime('%d-%m-%Y %H:%M') %>
-                  <% end %>
-                </div>
+              <% last_visit = patient.patient_visits.order(check_in: :desc).first %>
+
+              <td>
+                <% if last_visit&.check_in.present? %>
+                  <%= last_visit.check_in.strftime('%d-%m-%Y %H:%M') %>
+                <% end %>
+              </td>
+
+              <td>
+                <% if last_visit&.check_out.present? %>
+                  <%= last_visit.check_out.strftime('%d-%m-%Y %H:%M') %>
+                <% end %>
               </td>
 
               <td class="text-center">
                 <div class="d-flex justify-content-center">
-                  <% if patient.check_out.blank? %>
-                    <%= button_to check_out_patient_path(patient), method: :patch, class: "btn btn-link text-danger p-0", data: { confirm: 'Check-out this patient?' } do %>
-                      <i class="fas fa-user-minus fa-lg"></i> <!-- Relevant icon for Check-out -->
+                  <!-- Check-In Button -->
+                  <% if last_visit.nil? || last_visit.check_out.present? %>
+                    <%= button_to check_in_patient_path(patient), method: :patch, class: "btn btn-link text-success p-0", data: { confirm: 'Check-in this patient?' } do %>
+                      <i class="fas fa-user-check fa-lg"></i>
                     <% end %>
-                  <% else %>
-                    <%= patient.check_out.strftime('%d-%m-%Y %H:%M') %>
                   <% end %>
-                </div>
-              </td>
-              
-              <td class="text-center">
-                <div class="d-flex justify-content-center">
+
+                  <!-- Check-Out Button -->
+                  <% if last_visit&.check_in.present? && last_visit.check_out.blank? %>
+                    <%= button_to check_out_patient_path(patient), method: :patch, class: "btn btn-link text-danger p-0", data: { confirm: 'Check-out this patient?' } do %>
+                      <i class="fas fa-user-minus fa-lg"></i>
+                    <% end %>
+                  <% end %>
+
                   <button type="button" class="btn btn-link btn-warning p-0 mx-3" data-toggle="modal" data-target="#edit-patient-modal-<%= patient.id %>">
                     <i class="fas fa-edit fa-lg"></i>
                   </button>                 
@@ -262,3 +286,50 @@
     </div>
   </div>
 <% end %>
+
+<script>
+  document.getElementById('filter-btn').addEventListener('click', function () {
+    const filterOptions = document.getElementById('filter-options');
+    filterOptions.classList.toggle('d-none');
+  });
+
+  document.querySelectorAll('input[name="filter"]').forEach(function (radio) {
+    radio.addEventListener('change', function () {
+      document.getElementById('filter-form').submit();
+    });
+  });
+
+  document.getElementById('filter-btn').addEventListener('click', function () {
+    const filterOptions = document.getElementById('filter-options');
+    const arrowIcon = document.getElementById('arrow-icon');
+
+    filterOptions.classList.toggle('active');
+    arrowIcon.innerHTML = filterOptions.classList.contains('active') ? '&#9652;' : '&#9662;';
+  });
+
+  document.querySelectorAll('input[name="filter"]').forEach(function (radio) {
+    radio.addEventListener('change', function () {
+      document.getElementById('filter-form').submit();
+    });
+  });
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const filterButton = document.getElementById('filter-btn');
+    const filterAll = document.getElementById('filter_all');
+    const filterCheckIn = document.getElementById('filter_check_in');
+
+    function updateFilterButtonText() {
+      if (filterCheckIn.checked) {
+        filterButton.innerHTML = 'Check-In &nbsp;&nbsp;<span id="arrow-icon">&#9662;</span>';
+      } else {
+        filterButton.innerHTML = 'All &nbsp;&nbsp;<span id="arrow-icon">&#9662;</span>';
+      }
+    }
+
+    updateFilterButtonText();
+
+    filterAll.addEventListener('change', updateFilterButtonText);
+    filterCheckIn.addEventListener('change', updateFilterButtonText);
+  });
+
+</script>

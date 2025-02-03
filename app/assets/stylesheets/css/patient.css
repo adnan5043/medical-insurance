@@ -1,0 +1,32 @@
+.dropdown-content {
+  z-index: 1050;
+  width: 150px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.dropdown-content.active {
+  max-height: 200px;
+}
+
+#filter-options {
+  background-color: black;
+}
+
+.form-check-label {
+  color: white;
+}
+
+.modal.show .modal-dialog {
+  -webkit-transform: translate(0, 10%);
+  transform: translate(0, 10%);
+}
+
+.modal-dialog {
+  max-width: 600px;
+  margin: 1.75rem auto;
+}
+.bposition{
+  margin-right: 30px;
+}
