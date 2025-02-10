@@ -30,3 +30,13 @@
 .modal .form-group label {
   color:rgb(155, 153, 153);
 }
+
+
+/*======================search=====================*/
+.clear-icon {
+  color: #aaa;
+  cursor: pointer;
+}
+.clear-icon:hover {
+  color: rgb(255, 0, 0);
+}

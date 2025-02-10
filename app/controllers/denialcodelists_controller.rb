@@ -3,9 +3,17 @@ class DenialcodelistsController < ApplicationController
 
   def index
     authorize :settings, :index?
-    @denialcodelists = Denialcodelist.page(params[:page])
+    
+    if params[:query].present?
+      @denialcodelists = Denialcodelist.where('denial_code ILIKE ? OR description ILIKE ?', "%#{params[:query]}%", "%#{params[:query]}%")
+    else
+      @denialcodelists = Denialcodelist.all
+    end
+
+    @denialcodelists = @denialcodelists.page(params[:page])
     @denialcodelist = Denialcodelist.new
   end
+
 
   def import
     upload_file
