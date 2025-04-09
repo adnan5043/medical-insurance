@@ -8,8 +8,8 @@ class TransactionsController < ApplicationController
 def download_report
   username = params[:username]
   report_type = params[:report_type]
-  from_date = params[:transaction_from_date].presence
-  to_date = params[:transaction_to_date].presence
+  @from_date = params[:transaction_from_date].presence
+  @to_date = params[:transaction_to_date].presence
 
   @transactions = if username.present?
                     branch = Branch.find_by(username: username)
@@ -18,8 +18,8 @@ def download_report
                       scope = TransactionData.where("sender_id = ? OR receiver_id = ?", clinical_id, clinical_id)
                       scope = scope.where("denial_code IS NOT NULL") if report_type == "rejection"
                       
-                      if from_date && to_date
-                        scope = scope.where(transaction_date: from_date..to_date)
+                      if @from_date && @to_date
+                        scope = scope.where(transaction_date: Date.parse(@from_date).beginning_of_day..Date.parse(@to_date).end_of_day)
                       end
                       scope
                     else
@@ -37,7 +37,6 @@ def download_report
     end
   end
 end
-
 
   def show
     @transaction = Transaction.find(params[:id])

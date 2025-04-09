@@ -7,22 +7,26 @@ header_style = wb.styles.add_style(
   bg_color: 'D3D3D3' # Light Gray background
 )
 
-# Preload Doctorlist and Denialcodelist records to avoid N+1 queries
-doctorlist_mapping = Doctorlist.where(activity_clinician: @transactions.pluck(:activity_clinician).uniq)
-                               .index_by(&:activity_clinician)
+# Use the transactions already filtered by date from the controller
+date_filtered_transactions = @transactions
 
-# Fetch users based on userable_id from Doctorlist
+# Get all claim_ids in the date range
+date_filtered_claim_ids = date_filtered_transactions.pluck(:claim_id).uniq
+
+# Preload related data based on these claim_ids
+doctorlist_mapping = Doctorlist.where(activity_clinician: date_filtered_transactions.pluck(:activity_clinician).uniq)
+                             .index_by(&:activity_clinician)
+
 user_mapping = User.where(id: doctorlist_mapping.values.map(&:userable_id)).index_by(&:id)
 
+denialcode_mapping = Denialcodelist.where(denial_code: date_filtered_transactions.pluck(:denial_code).uniq)
+                                 .index_by(&:denial_code)
 
-denialcode_mapping = Denialcodelist.where(denial_code: @transactions.pluck(:denial_code).uniq)
-                                   .index_by(&:denial_code)
+# Load ALL remittance data for these claim_ids (not just date filtered)
+remittance_data = TransactionData.where(claim_id: date_filtered_claim_ids, data_type: 'Remittance.Advice').index_by(&:claim_id)
 
-# Fetch remittance data (example: matching by claim_id)
-remittance_data = TransactionData.where(claim_id: @transactions.pluck(:claim_id), data_type: 'Remittance.Advice').index_by(&:claim_id)
-
-# Pre-fetch transactions for submission data for faster lookups
-submission_data = @transactions.where(data_type: 'Claim.Submission').index_by(&:claim_id)
+# Load ALL submission data for these claim_ids (not just date filtered)
+submission_data = TransactionData.where(claim_id: date_filtered_claim_ids, data_type: 'Claim.Submission').index_by(&:claim_id)
 
 has_submission_rows = []
 no_submission_rows = []
@@ -30,7 +34,6 @@ no_remittance_rows = []
 
 # Add worksheet
 wb.add_worksheet(name: "Transactions") do |sheet|
-  # Add header row with bold style, including a "Remittance Data" column
   sheet.add_row [
     "Sender ID", "Receiver ID", "Receiver", "Claim ID", "Transaction Date",
     "Activity Clinician", "Doctor Name", "Activity ID", "Activity Code",
@@ -39,38 +42,24 @@ wb.add_worksheet(name: "Transactions") do |sheet|
     "Claim Payment Reference", "Denial Code", "Denial code Description", "RA Comments", "Data Type", "Compare Data"
   ], style: header_style
 
-  # Iterate over transactions in batches to avoid memory overload
-  @transactions.find_in_batches(batch_size: 5000) do |batch|
+  # Only process transactions in the date range
+  date_filtered_transactions.find_in_batches(batch_size: 5000) do |batch|
     batch.each do |transaction|
-      # Use preloaded doctorlist mapping
-      # Use preloaded doctorlist mapping
       doctorlist = doctorlist_mapping[transaction.activity_clinician]
       user = user_mapping[doctorlist&.userable_id]
-
-      # Get first and last name from User table
       doctor_name = user.present? ? "#{user.first_name} #{user.last_name}" : ""
-      
-
-      # Lookup denial description from the Denialcodelist mapping
       denial_description = denialcode_mapping[transaction.denial_code]&.description || ""
 
-      # Find remittance data based on claim_id
-      remittance = remittance_data[transaction.claim_id]
-
-      # Compare data logic (optimized)
+      # Compare against ALL related transactions (not date filtered)
       compare_data = "N/A"
       if transaction.data_type == "Claim.Submission"
-        # Directly check for corresponding remittance in preloaded remittance_data
-        compare_data = remittance.nil? ? "no remittance" : "has a remittance"
+        compare_data = remittance_data[transaction.claim_id].nil? ? "no remittance" : "has a remittance"
       elsif transaction.data_type == "Remittance.Advice"
-        # Directly check for corresponding submission in preloaded submission_data
-        corresponding_submission = submission_data[transaction.claim_id]
-        compare_data = corresponding_submission.nil? ? "no submission" : "has a submission"
+        compare_data = submission_data[transaction.claim_id].nil? ? "no submission" : "has a submission"
       end
 
       next if compare_data == "has a remittance"
 
-      # Prepare the row data
       row_data = [
         transaction.sender_id, 
         transaction.receiver_id,            
@@ -95,7 +84,6 @@ wb.add_worksheet(name: "Transactions") do |sheet|
         compare_data
       ]
 
-      # Add the row to the appropriate array based on compare_data
       case compare_data
       when "has a submission"
         has_submission_rows << row_data
@@ -107,7 +95,6 @@ wb.add_worksheet(name: "Transactions") do |sheet|
     end
   end
 
-  # Now add the rows in the desired order
   has_submission_rows.each { |row| sheet.add_row(row) }
   no_submission_rows.each { |row| sheet.add_row(row) }
   no_remittance_rows.each { |row| sheet.add_row(row) }

@@ -1,4 +1,3 @@
-# lib/tasks/doctorlist.rake
 namespace :doctorlist do
   desc "Update doctors' names and license numbers"
   task create: :environment do
@@ -40,11 +39,64 @@ namespace :doctorlist do
       { doctor_name: "Lana Allahham", activity_clinician: "DHA-P-52784111" }
     ]
 
-    doctors.each do |doctor|
-      # Find the existing record and update the doctor_name
-      doctor = Doctorlist.find_or_create_by(doctor_name: doctor[:doctor_name], activity_clinician: doctor[:activity_clinician])
+    doctors.each do |doc|
+      # Split the name into first and last name
+      name_parts = doc[:doctor_name].split(' ')
+      first_name = name_parts.first
+      last_name = name_parts[1..-1].join(' ')
 
-      puts "Record: #{doctor.inspect}"
+      # Create or find the doctor record
+      doctor = Doctorlist.find_or_initialize_by(activity_clinician: doc[:activity_clinician])
+      
+      # Build associated user if needed
+      if doctor.userable.nil?
+        base_email = "#{first_name.downcase}.#{last_name.downcase.gsub(/\s/, '')}"
+        email = "#{base_email}@example.com"
+        
+        # Handle duplicate emails by appending numbers
+        counter = 1
+        while User.exists?(email: email)
+          email = "#{base_email}#{counter += 1}@example.com"
+        end
+
+        user = User.new(
+          first_name: first_name,
+          last_name: last_name,
+          email: email,
+          password: 'password123',
+          password_confirmation: 'password123'
+        )
+        doctor.userable = user
+      else
+        # Update existing user's names
+        user = doctor.userable
+        user.first_name = first_name
+        user.last_name = last_name
+        
+        # Also check and update email if needed
+        base_email = "#{first_name.downcase}.#{last_name.downcase.gsub(/\s/, '')}"
+        new_email = "#{base_email}@example.com"
+        
+        if user.email != new_email && User.exists?(email: new_email)
+          counter = 1
+          while User.exists?(email: "#{base_email}#{counter}@example.com")
+            counter += 1
+          end
+          user.email = "#{base_email}#{counter}@example.com"
+        elsif user.email != new_email
+          user.email = new_email
+        end
+      end
+
+      # Save both records
+      if doctor.save && (doctor.userable.new_record? ? doctor.userable.save : true)
+        puts "Record updated: #{doctor.inspect}"
+      else
+        puts "Failed to save: #{doctor.errors.full_messages.join(', ')}"
+        if doctor.userable
+          puts "User errors: #{doctor.userable.errors.full_messages.join(', ')}"
+        end
+      end
     end
   end
 end
