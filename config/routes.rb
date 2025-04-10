@@ -2,6 +2,9 @@ Rails.application.routes.draw do
   resources :submissions
   resources :transaction_data, only: [:index, :new, :create, :edit, :update, :destroy]
   resources :patients do
+    collection do
+      get :scan_smartcard
+    end
     member do
       patch :check_in
       patch :check_out

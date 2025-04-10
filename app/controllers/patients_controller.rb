@@ -72,6 +72,26 @@ class PatientsController < ApplicationController
     end
   end
 
+  def scan_smartcard
+    result = SmartcardReaderService.read_card
+
+    if result[:error]
+      render json: { error: result[:error] }, status: :unprocessable_entity
+    else
+      # Assuming the card stores Emirates ID as a readable string
+      emirate_id_no = result[:data]
+      patient = Patient.find_by(emirate_id_no: emirate_id_no)
+
+      if patient
+        render json: { success: true, patient: patient }
+      else
+        render json: { success: false, message: "Data not found. Please register." }
+      end
+    end
+  end
+  
+
+  
   private
 
   def render_notification(message, type: :notice)

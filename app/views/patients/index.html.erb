@@ -122,6 +122,8 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
+            <!-- Add a button to scan the Emirates ID -->
+<button id="scan-btn" class="btn btn-primary">Scan Emirates ID</button>
       <div id="modal-body-content">
         <%= form_with(model: Patient.new, url: patients_path, local: true) do |form| %>
           <% if form.object.errors.any? %>
@@ -331,5 +333,22 @@
     filterAll.addEventListener('change', updateFilterButtonText);
     filterCheckIn.addEventListener('change', updateFilterButtonText);
   });
-
+document.getElementById("scan-btn").addEventListener("click", function() {
+    fetch("/patients/scan_smartcard")
+      .then(response => response.json())
+      .then(data => {
+        if (data.error) {
+          alert("Error: " + data.error);
+        } else if (data.success) {
+          alert("Patient Found: " + data.patient.name);
+          // Auto-fill patient details in the form (if needed)
+          document.getElementById("patient_name").value = data.patient.name;
+          document.getElementById("patient_phone_no").value = data.patient.phone_no;
+          document.getElementById("patient_emirate_id_no").value = data.patient.emirate_id_no;
+        } else {
+          alert("Data not found. Please register.");
+        }
+      })
+      .catch(error => console.error("Smartcard Scan Error:", error));
+  });
 </script>

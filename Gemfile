@@ -41,6 +41,8 @@ gem 'roo'
 gem 'countries'
 gem 'country_select'
 gem 'pundit'
+gem 'smartcard'
+# gem 'pcsc'
 
 # Use Redis adapter to run Action Cable in production
 # gem "redis", ">= 4.0.1"
