@@ -1,5 +1,6 @@
 class PatientsController < ApplicationController
   before_action :set_patient, only: %i[show edit update destroy check_in check_out]
+skip_before_action :verify_authenticity_token, only: [:process_card_scan]
 
   def index
     @patient = Patient.new
@@ -72,26 +73,52 @@ class PatientsController < ApplicationController
     end
   end
 
-  def scan_smartcard
-    result = SmartcardReaderService.read_card
+  # def scan_smartcard
+  #   # No Python script needed anymore - handled by WebSocket client-side
+  #   render json: { 
+  #     success: true, 
+  #     message: "Please scan your card using the reader application" 
+  #   }
+  # end
 
-    if result[:error]
-      render json: { error: result[:error] }, status: :unprocessable_entity
-    else
-      # Assuming the card stores Emirates ID as a readable string
-      emirate_id_no = result[:data]
-      patient = Patient.find_by(emirate_id_no: emirate_id_no)
+  def process_card_scan
+    # Permit all needed parameters including raw_data if you want to store it
+    card_data = params.require(:card_data).permit(
+      :card_number, 
+      :cardholder_name, 
+      :expiry_date, 
+      :card_name,
+      raw_data: {} # Permit the raw_data hash
+    )
+    
+    # Clean and format card number
+    clean_card_number = card_data[:card_number]&.gsub(/\s/, '')
+    
+    # Try to find patient
+    patient = Patient.find_by(emirate_id_no: clean_card_number)
 
-      if patient
-        render json: { success: true, patient: patient }
-      else
-        render json: { success: false, message: "Data not found. Please register." }
+    respond_to do |format|
+      format.json do
+        if patient
+          render json: {
+            success: true,
+            patient: {
+              name: patient.name,
+              emirate_id_no: patient.emirate_id_no,
+              phone_no: patient.phone_no
+            },
+            card_data: card_data 
+          }
+        else
+          render json: {
+            success: true,
+            patient: nil,
+            card_data: card_data
+          }
+        end
       end
     end
   end
-  
-
-  
   private
 
   def render_notification(message, type: :notice)

@@ -3,7 +3,9 @@ Rails.application.routes.draw do
   resources :transaction_data, only: [:index, :new, :create, :edit, :update, :destroy]
   resources :patients do
     collection do
-      get :scan_smartcard
+      # get :scan_smartcard
+      post 'process_card_scan'
+      get 'scan_smartcard' 
     end
     member do
       patch :check_in
