@@ -2,41 +2,42 @@ class TransactionsController < ApplicationController
   require 'nokogiri'
   require 'base64'
 
+  before_action :set_to_date
+
   def index
   end
 
-def download_report
-  username = params[:username]
-  report_type = params[:report_type]
-  @from_date = params[:transaction_from_date].presence
-  @to_date = params[:transaction_to_date].presence
-
-  @transactions = if username.present?
-                    branch = Branch.find_by(username: username)
-                    if branch
-                      clinical_id = branch.clinical_id
-                      scope = TransactionData.where("sender_id = ? OR receiver_id = ?", clinical_id, clinical_id)
-                      scope = scope.where("denial_code IS NOT NULL") if report_type == "rejection"
-                      
-                      if @from_date && @to_date
-                        scope = scope.where(transaction_date: Date.parse(@from_date).beginning_of_day..Date.parse(@to_date).end_of_day)
+  def download_report
+    username = params[:username]
+    report_type = params[:report_type]
+    @from_date = params[:transaction_from_date].presence
+    
+    @transactions = if username.present?
+                      branch = Branch.find_by(username: username)
+                      if branch
+                        clinical_id = branch.clinical_id
+                        scope = TransactionData.where("sender_id = ? OR receiver_id = ?", clinical_id, clinical_id)
+                        scope = scope.where("denial_code IS NOT NULL") if report_type == "rejection"
+                        
+                        if @from_date && @to_date
+                          scope = scope.where(transaction_date: Date.parse(@from_date).beginning_of_day..Date.parse(@to_date).end_of_day)
+                        end
+                        scope
+                      else
+                        TransactionData.none
                       end
-                      scope
                     else
                       TransactionData.none
                     end
-                  else
-                    TransactionData.none
-                  end
 
-  respond_to do |format|
-    format.html
-    format.xlsx do
-      report_name = report_type == "rejection" ? "rejection_report" : "full_report"
-      render xlsx: report_name, template: "transactions/report"
+    respond_to do |format|
+      format.html
+      format.xlsx do
+        report_name = report_type == "rejection" ? "rejection_report" : "full_report"
+        render xlsx: report_name, template: "transactions/report"
+      end
     end
   end
-end
 
   def show
     @transaction = Transaction.find(params[:id])
@@ -119,5 +120,13 @@ end
       end
     end
   end
+
+  def set_to_date
+    if params[:transaction_from_date].present?
+      to_date = params[:transaction_from_date].to_date + 3.months
+      params[:transaction_to_date] = @to_date = to_date < Time.now ? to_date : Time.now
+    end
+  end
+
 end
   
