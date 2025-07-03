@@ -11,7 +11,8 @@ class TransactionsController < ApplicationController
     username = params[:username]
     report_type = params[:report_type]
     @from_date = params[:transaction_from_date].presence
-    
+    @to_date = params[:transaction_to_date].presence
+
     @transactions = if username.present?
                       branch = Branch.find_by(username: username)
                       if branch
