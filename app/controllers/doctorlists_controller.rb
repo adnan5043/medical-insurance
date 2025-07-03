@@ -67,10 +67,10 @@ class DoctorlistsController < ApplicationController
   end
 
   def doctorlist_params
-    params.require(:doctorlist).permit(:activity_clinician, :percentage, userable_attributes: [:id, :admin_id, :first_name, :last_name, :country_code, :phone, :address, :avatar, :employee_designation, :joining_date, :email, :basic_salary, :password, :password_confirmation])
+    params.require(:doctorlist).permit(:activity_clinician, :percentage, :basic_salary, userable_attributes: [:id, :admin_id, :first_name, :last_name, :country_code, :phone, :address, :avatar, :employee_designation, :joining_date, :email, :basic_salary, :password, :password_confirmation])
   end
 
   def user_params
-    params.require(:user).permit(:admin_id, :first_name, :last_name, :country_code, :phone, :address, :avatar, :employee_designation, :joining_date, :email, :basic_salary, :password, :password_confirmation)
+    params.require(:user).permit(:admin_id, :first_name, :last_name, :country_code, :phone, :address, :avatar, :employee_designation, :joining_date, :email, :password, :password_confirmation)
   end
 end
