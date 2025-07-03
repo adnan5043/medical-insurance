@@ -20,7 +20,7 @@
 # Learn more: http://github.com/javan/whenever
 
 
-# set :environment, "development" 
+set :environment, "development" 
 set :output, "log/cron.log"     
 
 every 1.day, at: '4:43 pm' do
