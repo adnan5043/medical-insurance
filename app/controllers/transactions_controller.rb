@@ -122,7 +122,7 @@ class TransactionsController < ApplicationController
   end
 
   def set_to_date
-    if params[:transaction_from_date].present? && params[:transaction_to_date].empty?
+    if params[:transaction_from_date].present? && !params[:transaction_to_date].present?
       to_date = params[:transaction_from_date].to_date + 3.months
       params[:transaction_to_date] = @to_date = to_date < Time.now ? to_date : Time.now
     end
