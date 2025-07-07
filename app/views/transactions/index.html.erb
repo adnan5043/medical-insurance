@@ -1,4 +1,5 @@
 <h2 class="mt-4 text-center text-primary">Get Transaction Data</h2>
+<p class="mt-4 text-center text-primary"><%= get_last_transaction_at %></p>
 
 <%= form_with url: fetch_transactions_transactions_path, method: :post, class: 'mt-3', id: 'transaction_form', html: { class: 'shadow-lg p-4 rounded bg-dark' } do |form| %>
   <div class="form-group mb-3">
