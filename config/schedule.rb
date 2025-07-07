@@ -25,4 +25,5 @@ set :output, "log/cron.log"
 
 every 1.day, at: '4:43 pm' do
   rake "api_request:hit_api"
+  rake "transactions:process FROM_DATE=$(date -d '15 days ago' +\%F) TO_DATE=$(date +\%F) FETCH_BY=2"
 end

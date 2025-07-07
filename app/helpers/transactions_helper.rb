@@ -9,7 +9,7 @@ module TransactionsHelper
 			user = branch.username
 			td = TransactionData.where("sender_id = ? OR receiver_id = ?", branch.clinical_id, branch.clinical_id).last
 			transaction = td.transaction_record
-			request_by = transaction.search_transaction.nil? ? 'By System' : 'By Mannual Request'
+			request_by = transaction.search_transaction.present? ? (transaction.search_transaction.fetch_by_s) : 'By System'
 
 			message += "<span class='text-warning'>#{user}</span> Clinic Last Updated At: <span class='text-warning'>#{transaction.created_at}</span> #{request_by} <br>"
 

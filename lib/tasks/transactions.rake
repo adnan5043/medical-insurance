@@ -5,6 +5,7 @@ namespace :transactions do
     from_date = ENV['FROM_DATE']
     to_date = ENV['TO_DATE']
     username = ENV['USER_NAME']
+    fetch_by = ENV['FETCH_BY'] || 1
 
     if from_date.present? && to_date.present?
       from_date = Date.parse(from_date)
@@ -69,7 +70,8 @@ namespace :transactions do
       search_transaction = SearchTransaction.create!(
         login: login,
         transaction_from_date: from_date,
-        transaction_to_date: to_date
+        transaction_to_date: to_date,
+        fetch_by: fetch_by
       )
 
       # Queue the background job
