@@ -3,7 +3,7 @@ namespace :api_request do
   task hit_api: :environment do
     Rails.logger.info "Starting daily API request..."
     Branch.all.each do |branch|
-      transaction_from_date = 7.days.ago.to_date
+      transaction_from_date = 15.days.ago.to_date
       transaction_to_date = Date.today
 
       if branch.login.blank? || branch.password.blank?
